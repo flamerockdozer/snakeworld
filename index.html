@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Snake World</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Titan+One&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+
+    <div id="start" class="overlay menu">
+      <p class="brand">Snake World</p>
+      <p id="menu-kill" class="killer hidden"></p>
+      <form id="start-form" autocomplete="off">
+        <input
+          id="player-name"
+          type="text"
+          maxlength="16"
+          placeholder="Your name"
+          spellcheck="false"
+        />
+        <div id="skins" class="skins" role="listbox" aria-label="Snake color"></div>
+        <p class="map-sub">Growth rate</p>
+        <label class="map-opacity">
+          <input id="grow-rate" type="range" min="20" max="300" step="10" value="100" aria-label="Growth rate" />
+          <span id="grow-rate-value">1.0x</span>
+        </label>
+        <button type="submit" class="play-btn">Play</button>
+        <div id="map-maker" class="map-maker">
+          <p class="map-label">Make a map</p>
+          <button type="button" id="map-traditional" class="map-traditional">Traditional</button>
+          <p class="map-sub">Outline</p>
+          <div id="map-outlines" class="skins" role="listbox" aria-label="Map outline"></div>
+          <p class="map-sub">Filling</p>
+          <div id="map-fills" class="skins" role="listbox" aria-label="Map filling"></div>
+          <p class="map-sub">Opacity</p>
+          <label class="map-opacity">
+            <input id="map-opacity" type="range" min="10" max="100" step="1" value="55" aria-label="Map opacity" />
+            <span id="map-opacity-value">55%</span>
+          </label>
+        </div>
+      </form>
+      <p id="best-line" class="best">
+        <span id="best-text"></span>
+        <button type="button" id="best-clear" class="best-clear hidden" aria-label="Hold to delete best length">×</button>
+      </p>
+      <button type="button" id="tv-open" class="play-btn">World TV · Watch</button>
+      <ol id="highscores" class="scores live-scores"></ol>
+    </div>
+
+    <div id="dead" class="overlay hidden">
+      <p class="brand end-brand">Eliminated</p>
+      <p id="dead-by" class="killer"></p>
+      <p id="dead-line" class="tag"></p>
+      <ol id="dead-scores" class="scores"></ol>
+      <button type="button" id="again" class="play-btn">Play again</button>
+    </div>
+
+    <div id="hud" class="hidden">
+      <div id="scorecard">
+        <p id="scoreline"></p>
+        <p id="rankline"></p>
+      </div>
+      <div id="board-wrap">
+        <button type="button" id="board-hide" title="Hide leaderboard">Hide</button>
+        <ol id="board"></ol>
+        <span id="board-resize" title="Resize leaderboard"></span>
+        <button type="button" id="board-show" title="Show leaderboard">Board</button>
+      </div>
+      <ul id="feed"></ul>
+      <p id="hint">Mouse steers · hold click or space to boost · gold flees · saws hunt you</p>
+      <p id="tv-hint" class="hidden">Click a name or a map dot to lock · Change channel flips snakes and wrecks</p>
+      <p id="tv-live" class="hidden" title="Follow the action">Live</p>
+      <p id="killcam" class="hidden">Kill cam</p>
+      <button type="button" id="tv-back" class="hidden">Go back</button>
+      <button type="button" id="tv-channel" class="hidden">Change channel</button>
+      <button type="button" id="pause" class="hidden">Pause</button>
+      <p id="paused" class="hidden">Paused</p>
+      <p id="length-pop" class="hidden"><strong></strong></p>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>

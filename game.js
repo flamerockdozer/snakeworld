@@ -22,6 +22,7 @@
   const startForm = document.getElementById("start-form");
   const skinsEl = document.getElementById("skins");
   const againBtn = document.getElementById("again");
+  const mapTypesEl = document.getElementById("map-types");
   const mapOutlinesEl = document.getElementById("map-outlines");
   const mapFillsEl = document.getElementById("map-fills");
   const mapTraditionalBtn = document.getElementById("map-traditional");
@@ -131,6 +132,24 @@
     { name: "Traditional", rim1: "#000000", rim2: "#000000", edge: "rgba(0, 0, 0, 0.4)" },
   ];
 
+  const MAP_TYPES = [
+    {
+      id: "hex",
+      name: "Hexagon",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="18,3 31,10.5 31,25.5 18,33 5,25.5 5,10.5"/></svg>',
+    },
+    {
+      id: "square",
+      name: "Square",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="6" width="24" height="24"/></svg>',
+    },
+    {
+      id: "tri",
+      name: "Triangle",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="18,4 32,31 4,31"/></svg>',
+    },
+  ];
+
   const FILLS = [
     { name: "Lagoon", bg: ["#1d8f96", "#12747c", "#062f36"], arena: "#0e6e76", caustic: "rgba(210,255,255,0.11)" },
     { name: "Midnight", bg: ["#3d4a9a", "#1a2458", "#070b1c"], arena: "#16204a", caustic: "rgba(180,170,255,0.10)" },
@@ -206,6 +225,7 @@
   let skinIndex = Number(localStorage.getItem("sd-skin") || 0);
   let outlineIndex = 0;
   let fillIndex = 0;
+  let mapType = "hex";
   let mapOpacity = 0.55;
   let growRate = 1;
   let time = 0;
@@ -261,6 +281,8 @@
         : fallback;
     fillIndex =
       Number.isInteger(savedFill) && savedFill >= 0 && savedFill < FILLS.length ? savedFill : fallback;
+    const savedType = localStorage.getItem("sd-map-type");
+    if (MAP_TYPES.some((type) => type.id === savedType)) mapType = savedType;
     const savedOpacity = Number(localStorage.getItem("sd-opacity"));
     if (Number.isFinite(savedOpacity)) mapOpacity = clamp(savedOpacity, 0.1, 1);
     const savedGrow = Number(localStorage.getItem("sd-grow"));
@@ -438,6 +460,24 @@
     const opacityPct = Math.round(mapOpacity * 100);
     mapOpacityEl.value = String(opacityPct);
     mapOpacityValueEl.textContent = opacityPct + "%";
+    mapTypesEl.innerHTML = "";
+    MAP_TYPES.forEach((type) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "map-shape" + (type.id === mapType ? " on" : "");
+      btn.title = type.name;
+      btn.setAttribute("role", "radio");
+      btn.setAttribute("aria-checked", type.id === mapType ? "true" : "false");
+      btn.setAttribute("aria-label", type.name);
+      btn.innerHTML = type.svg;
+      btn.addEventListener("click", () => {
+        mapType = type.id;
+        localStorage.setItem("sd-map-type", mapType);
+        renderMapMaker();
+      });
+      mapTypesEl.appendChild(btn);
+    });
+
     mapOutlinesEl.innerHTML = "";
     OUTLINES.forEach((outline, i) => {
       const btn = document.createElement("button");
@@ -3129,38 +3169,58 @@
     g.closePath();
   }
 
+  function floorView() {
+    return {
+      minX: cam.x - cssW / cam.z,
+      maxX: cam.x + cssW / cam.z,
+      minY: cam.y - cssH / cam.z,
+      maxY: cam.y + cssH / cam.z,
+    };
+  }
+
+  function stampTile(fills, outline, tones, col, row, trace) {
+    const color = tones[Math.abs((col * 5 + row * 3) % tones.length)];
+    let path = fills.get(color);
+    if (!path) {
+      path = new Path2D();
+      fills.set(color, path);
+    }
+    trace(path);
+    trace(outline);
+  }
+
+  function traceSquare(x, y, side, path) {
+    const h = side / 2;
+    path.moveTo(x - h, y - h);
+    path.lineTo(x + h, y - h);
+    path.lineTo(x + h, y + h);
+    path.lineTo(x - h, y + h);
+    path.closePath();
+  }
+
+  function traceTri(x, y, side, h, up, path) {
+    if (up) {
+      path.moveTo(x, y + h);
+      path.lineTo(x + side / 2, y);
+      path.lineTo(x + side, y + h);
+    } else {
+      path.moveTo(x, y);
+      path.lineTo(x + side / 2, y + h);
+      path.lineTo(x + side, y);
+    }
+    path.closePath();
+  }
+
   function drawFloor() {
     const m = currentMap();
-    const size = 42;
-    const colW = Math.sqrt(3) * size;
-    const rowH = size * 1.5;
-    const minX = cam.x - cssW / cam.z;
-    const maxX = cam.x + cssW / cam.z;
-    const minY = cam.y - cssH / cam.z;
-    const maxY = cam.y + cssH / cam.z;
-    const row0 = Math.floor(minY / rowH) - 1;
-    const row1 = Math.ceil(maxY / rowH) + 1;
+    const view = floorView();
     const tones = [m.arena, m.arena, m.bg[1], m.arena, m.bg[0], m.bg[1], m.arena];
     const fills = new Map();
     const outline = new Path2D();
 
-    for (let row = row0; row <= row1; row++) {
-      const y = row * rowH;
-      const shift = row & 1 ? colW * 0.5 : 0;
-      const col0 = Math.floor((minX - shift) / colW) - 1;
-      const col1 = Math.ceil((maxX - shift) / colW) + 1;
-      for (let col = col0; col <= col1; col++) {
-        const x = col * colW + shift;
-        const color = tones[Math.abs((col * 5 + row * 3) % tones.length)];
-        let path = fills.get(color);
-        if (!path) {
-          path = new Path2D();
-          fills.set(color, path);
-        }
-        traceHex(x, y, size, path);
-        traceHex(x, y, size, outline);
-      }
-    }
+    if (mapType === "square") addSquareTiles(fills, outline, tones, view);
+    else if (mapType === "tri") addTriTiles(fills, outline, tones, view);
+    else addHexTiles(fills, outline, tones, view);
 
     for (const [color, path] of fills) {
       ctx.fillStyle = color;
@@ -3175,9 +3235,60 @@
     ctx.arc(0, 0, WORLD_R, 0, Math.PI * 2);
     const edge = ctx.createRadialGradient(0, 0, WORLD_R * 0.82, 0, 0, WORLD_R);
     edge.addColorStop(0, "rgba(255, 70, 50, 0)");
-    edge.addColorStop(1, currentMap().edge);
+    edge.addColorStop(1, m.edge);
     ctx.fillStyle = edge;
     ctx.fill();
+  }
+
+  function addHexTiles(fills, outline, tones, view) {
+    const size = 42;
+    const colW = Math.sqrt(3) * size;
+    const rowH = size * 1.5;
+    const row0 = Math.floor(view.minY / rowH) - 1;
+    const row1 = Math.ceil(view.maxY / rowH) + 1;
+    for (let row = row0; row <= row1; row++) {
+      const y = row * rowH;
+      const shift = row & 1 ? colW * 0.5 : 0;
+      const col0 = Math.floor((view.minX - shift) / colW) - 1;
+      const col1 = Math.ceil((view.maxX - shift) / colW) + 1;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * colW + shift;
+        stampTile(fills, outline, tones, col, row, (path) => traceHex(x, y, size, path));
+      }
+    }
+  }
+
+  function addSquareTiles(fills, outline, tones, view) {
+    const side = 73;
+    const col0 = Math.floor(view.minX / side) - 1;
+    const col1 = Math.ceil(view.maxX / side) + 1;
+    const row0 = Math.floor(view.minY / side) - 1;
+    const row1 = Math.ceil(view.maxY / side) + 1;
+    for (let row = row0; row <= row1; row++) {
+      const y = row * side;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * side;
+        stampTile(fills, outline, tones, col, row, (path) => traceSquare(x, y, side, path));
+      }
+    }
+  }
+
+  function addTriTiles(fills, outline, tones, view) {
+    const side = 86;
+    const h = (Math.sqrt(3) / 2) * side;
+    const step = side / 2;
+    const col0 = Math.floor(view.minX / step) - 2;
+    const col1 = Math.ceil(view.maxX / step) + 2;
+    const row0 = Math.floor(view.minY / h) - 2;
+    const row1 = Math.ceil(view.maxY / h) + 2;
+    for (let row = row0; row <= row1; row++) {
+      const y = row * h;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * step;
+        const up = ((row + col) & 1) === 0;
+        stampTile(fills, outline, tones, col, row, (path) => traceTri(x, y, side, h, up, path));
+      }
+    }
   }
 
   function drawCaustics() {

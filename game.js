@@ -157,7 +157,7 @@
     { name: "Cream", bg: ["#f0e2c0", "#c8b48a", "#3a3020"], arena: "#b8a478", caustic: "rgba(255,246,220,0.14)" },
     { name: "Kelp", bg: ["#2a8a62", "#14523c", "#04140e"], arena: "#104432", caustic: "rgba(120,255,190,0.10)" },
     { name: "Wine", bg: ["#8a2848", "#4e1428", "#14060a"], arena: "#401020", caustic: "rgba(255,120,150,0.10)" },
-    { name: "Traditional", bg: ["#8a9440", "#545c22", "#141604"], arena: "#464e1c", caustic: "rgba(220,230,120,0.10)" },
+    { name: "Traditional", bg: ["#6a7888", "#3a4450", "#101418"], arena: "#303840", caustic: "rgba(200,214,224,0.12)" },
   ];
 
   const PELLET = [

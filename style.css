@@ -177,7 +177,7 @@ body {
 
 .map-traditional {
   animation: none;
-  background: linear-gradient(160deg, #8a9440 0%, #464e1c 55%, #141604 100%);
+  background: linear-gradient(160deg, #6a7888 0%, #303840 55%, #101418 100%);
   color: #f4f6e4;
   border: 3px solid #000;
   border-radius: 999px;
@@ -189,7 +189,7 @@ body {
 
 .map-traditional:hover,
 .map-traditional:focus-visible {
-  background: linear-gradient(160deg, #a0aa52 0%, #5c6828 55%, #1c2208 100%);
+  background: linear-gradient(160deg, #808e9a 0%, #465254 55%, #182020 100%);
 }
 
 .map-traditional.on {

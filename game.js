@@ -35,6 +35,9 @@
   const tvBackBtn = document.getElementById("tv-back");
   const tvChannelBtn = document.getElementById("tv-channel");
   const tvOpenBtn = document.getElementById("tv-open");
+  const howOpenBtn = document.getElementById("how-open");
+  const howEl = document.getElementById("how");
+  const howCloseBtn = document.getElementById("how-close");
   const hintEl = document.getElementById("hint");
   const tvHintEl = document.getElementById("tv-hint");
   const tvLiveEl = document.getElementById("tv-live");
@@ -4162,6 +4165,16 @@
     e.preventDefault();
     openTv();
   });
+  howOpenBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    howEl.classList.remove("hidden");
+  });
+  howCloseBtn.addEventListener("click", () => {
+    howEl.classList.add("hidden");
+  });
+  howEl.addEventListener("click", (e) => {
+    if (e.target === howEl || e.target.closest("[data-how-close]")) howEl.classList.add("hidden");
+  });
   pauseBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     togglePause();
@@ -4314,6 +4327,11 @@
     if (state === "tv" && !replay && (e.key === "ArrowRight" || e.key === "]")) {
       e.preventDefault();
       cycleWatch(1);
+      return;
+    }
+    if (e.key === "Escape" && !howEl.classList.contains("hidden")) {
+      e.preventDefault();
+      howEl.classList.add("hidden");
       return;
     }
     if (e.key === "p" || e.key === "P") {

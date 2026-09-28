@@ -53,6 +53,7 @@
         <span id="best-text"></span>
         <button type="button" id="best-clear" class="best-clear hidden" aria-label="Hold to delete best length">×</button>
       </p>
+      <button type="button" id="how-open" class="play-btn">How to play</button>
       <button type="button" id="tv-open" class="play-btn">World TV · Watch</button>
       <ol id="highscores" class="scores live-scores"></ol>
     </div>
@@ -86,6 +87,266 @@
       <button type="button" id="pause" class="hidden">Pause</button>
       <p id="paused" class="hidden">Paused</p>
       <p id="length-pop" class="hidden"><strong></strong></p>
+    </div>
+
+    <div id="how" class="how hidden" role="dialog" aria-modal="true" aria-labelledby="how-title">
+      <article class="how-card">
+        <header class="how-mast">
+          <p class="how-kicker">Snake World</p>
+          <h1 id="how-title" class="how-title">How to play</h1>
+          <p class="how-dek">Controls, the map maker, growth rate, the 48 snakes, and why your own boost trail is not food.</p>
+        </header>
+
+        <nav class="how-nav" aria-label="On this page">
+          <a href="#how-controls">Controls</a>
+          <a href="#how-map">Make a map</a>
+          <a href="#how-grow">Growth rate</a>
+          <a href="#how-snakes">Snakes</a>
+          <a href="#how-boost">Boost tails</a>
+          <a href="#how-steer">Steer</a>
+          <a href="#how-orbs">Orbs</a>
+          <a href="#how-gold">Gold</a>
+          <a href="#how-wrecks">Wrecks</a>
+          <a href="#how-saws">Saws</a>
+          <a href="#how-rim">The rim</a>
+          <a href="#how-marks">Length</a>
+          <a href="#how-field">On the field</a>
+          <a href="#how-dead">When you die</a>
+          <a href="#how-tv">World TV</a>
+          <a href="#how-last">How to last</a>
+        </nav>
+
+        <section id="how-controls">
+          <h2>Controls</h2>
+          <p>The mouse steers. Everything else is a hold, a key, or a button on the screen.</p>
+          <h3>While you play</h3>
+          <dl class="how-keys">
+            <div>
+              <dt>Mouse</dt>
+              <dd>Move it to steer. Your head turns toward the cursor.</dd>
+            </div>
+            <div>
+              <dt>Hold click</dt>
+              <dd>Boost, once your length is past 25. Hold the mouse button, space, or shift. Let go to stop.</dd>
+            </div>
+            <div>
+              <dt>P or Escape</dt>
+              <dd>Pause. The Pause button does the same. Escape during a kill cam skips the replay.</dd>
+            </div>
+            <div>
+              <dt>Hide and Board</dt>
+              <dd>Hide the leaderboard, or bring it back. Drag the corner of the board to resize it.</dd>
+            </div>
+            <div>
+              <dt>Feed</dt>
+              <dd>Click a wreck line to replay that kill.</dd>
+            </div>
+          </dl>
+          <h3>On the menu</h3>
+          <dl class="how-keys">
+            <div>
+              <dt>Name</dt>
+              <dd>Up to 16 letters. This is the name on the board.</dd>
+            </div>
+            <div>
+              <dt>Color</dt>
+              <dd>The row of dots under your name is your snake’s skin.</dd>
+            </div>
+            <div>
+              <dt>Growth rate</dt>
+              <dd>The slider from 0.2× to 3.0×. It changes how fast every orb adds length.</dd>
+            </div>
+            <div>
+              <dt>Play</dt>
+              <dd>Drops you into the arena with the name, skin, growth rate, and map you set.</dd>
+            </div>
+            <div>
+              <dt>Best length ×</dt>
+              <dd>Hold the × beside your best length until the bar fills. That erases the record.</dd>
+            </div>
+            <div>
+              <dt>Live names</dt>
+              <dd>The list under World TV is who is alive right now. Click a name to watch that snake.</dd>
+            </div>
+          </dl>
+          <h3>World TV</h3>
+          <dl class="how-keys">
+            <div>
+              <dt>Click a snake</dt>
+              <dd>Lock the camera. A name on the board or a dot on the little map does the same.</dd>
+            </div>
+            <div>
+              <dt>Change channel</dt>
+              <dd>Or press space. Flips to another snake and the wrecks around them.</dd>
+            </div>
+            <div>
+              <dt>Left and right</dt>
+              <dd>Arrow keys, or [ and ], cycle who you are watching.</dd>
+            </div>
+            <div>
+              <dt>Go back</dt>
+              <dd>Or Escape. Returns to the menu. Pause still works while you watch.</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section id="how-map">
+          <h2>Make a map</h2>
+          <p>The map maker is on the menu, under Play. It only changes how the arena looks. The world stays a circle, snakes still wrap the rim, and the rules do not change. What you pick is saved for the next time you open the game.</p>
+          <dl class="how-keys">
+            <div>
+              <dt>Map type</dt>
+              <dd>The tile on the floor. Hexagon, square, or triangle.</dd>
+            </div>
+            <div>
+              <dt>Traditional</dt>
+              <dd>One button. It sets the outline and the filling to the plain look.</dd>
+            </div>
+            <div>
+              <dt>Outline</dt>
+              <dd>The color of the rim. Pick a ring from the row.</dd>
+            </div>
+            <div>
+              <dt>Filling</dt>
+              <dd>The color of the water. Pick a swatch from the row under Outline.</dd>
+            </div>
+            <div>
+              <dt>Opacity</dt>
+              <dd>How strong that paint sits, from 10% to 100%. It starts at 55%.</dd>
+            </div>
+          </dl>
+          <p>Set the map before you press Play. Play again keeps the same map.</p>
+        </section>
+
+        <section id="how-grow">
+          <h2>Growth rate</h2>
+          <p>The growth rate slider sits on the menu, between your color and Play. It runs from 0.2× to 3.0×, in steps of 0.1×. 1.0× is the usual pace.</p>
+          <p>It multiplies the length you get from every orb: ordinary dots, glowing ones, gold, saw trails, wreck piles, and other snakes’ boost drops. 0.2× is a slow graze. 3.0× is three times the usual meal, so the same orb makes you huge much faster, and it makes everyone else huge faster too. The slider applies to the whole arena, not just you.</p>
+          <p>It does not change boost cost, turn width, or how many snakes are out there. A higher rate only means food is worth more. The number you leave it on is remembered.</p>
+          <aside class="how-call">
+            <p>0.2× slow. 1.0× normal. 3.0× triple. Same orbs, different length.</p>
+          </aside>
+        </section>
+
+        <section id="how-snakes">
+          <h2>How many snakes</h2>
+          <p>The arena keeps 48 other snakes alive. When you press Play, you join them, so 49 snakes are in the world: you and 48 others.</p>
+          <p>When one of them dies, a new snake spawns to fill the gap. The count of living rivals stays at 48. The menu and World TV are the same arena without you, so you are watching those 48.</p>
+          <p>They eat, boost, hunt, and flee saws. Some chase you. Your length is how you rank against all of them on the board.</p>
+          <aside class="how-call">
+            <p>48 snakes, always. You are the 49th.</p>
+          </aside>
+        </section>
+
+        <section id="how-steer">
+          <h2>Steer with the mouse</h2>
+          <p>Move the mouse. Your head turns toward the cursor. It does not snap onto it, and the arrow keys do not drive.</p>
+          <p>The longer you are, the wider you have to turn. A huge snake needs open water to come around. Boosting makes that turn a little wider still. The camera pulls back as you grow, so you can see the body you are dragging behind you.</p>
+        </section>
+
+        <section id="how-boost">
+          <h2>You cannot eat your boost tail</h2>
+          <p>Hold the mouse button, the space bar, or shift once your length is past 25. You speed up to a little under twice your cruise, the view pulls back, and nearby orbs tug toward your head a bit harder.</p>
+          <p>Boosting spends length the whole time you hold it. Once it is fully open, that is about nine length a second. That length falls off your tail as a spray of orbs in your color. Those orbs are yours. Your head goes right through them and they do not count. You cannot eat your own boost tail, not by looping around, not by slowing down, not later. They stay inedible to you.</p>
+          <aside class="how-call">
+            <p>Your boost trail is food for everyone except you.</p>
+          </aside>
+          <p>Every other snake can eat that trail and grow off the length you just spent. You can eat their boost trails. You can eat wreck orbs, gold, saw dots, and the loose food on the map. The only orbs your head refuses are the ones falling off your own tail while you boost.</p>
+          <p>Let go before you shrink back to 25. The boost shuts itself off there. Use it to close a gap, slip a saw, or finish a cut. Holding it through a long chase just lays a trail the snake behind you can eat.</p>
+        </section>
+
+        <section id="how-orbs">
+          <h2>Orbs</h2>
+          <p>The arena is packed with colored orbs. Eat them with your head. They drift, and when you get close they slide toward you. Most are small. A few glow bigger and are worth more. A run of eats rings louder the longer the chain goes.</p>
+          <p>Length is the score, shown as a whole number. Early orbs fatten you faster. The same orb adds less once you are huge, so the first thousand comes easier than the next one. Growth rate multiplies whatever an orb would have given you.</p>
+        </section>
+
+        <section id="how-gold">
+          <h2>Gold</h2>
+          <p>Gold orbs run. A few dozen of them are always on the map. They idle until a head gets close, then they bolt, and they bolt harder if that snake is boosting. One gold orb is worth far more than a pile of ordinary dots.</p>
+          <p>Do not chase one in a straight line. Swing wide and meet it where it is going. A boost straight at gold usually means you arrive late, thinner, and with a trail of free food behind you.</p>
+        </section>
+
+        <section id="how-wrecks">
+          <h2>Only the head dies</h2>
+          <p>Run your head into another snake and you are wrecked. If they run their head into your body, they die and the kill is yours. Your own body does not kill you.</p>
+          <p>A dead snake bursts into orbs the color of its skin. That pile is a feast, and it is also a trap, because everyone else is already turning toward it. Circle a smaller snake so its head meets your side. Leave a gap. The longer you are, the thicker you are, and the more of the map your body becomes.</p>
+          <aside class="how-call">
+            <p>Head into a body: you die. Their head into your body: they die. Blades count too.</p>
+          </aside>
+        </section>
+
+        <section id="how-saws">
+          <h2>Saws</h2>
+          <p>Saws hunt snakes. They cruise, pick a head, orbit it, then charge. A bigger snake draws them from farther away, and a charge at a big snake is faster. Touch a blade and you pop. The feed says a saw got you.</p>
+          <p>While a saw is charging it sheds a trail of dots, some of them gold. Stay off the teeth and take the trail after it passes. If one starts circling you, leave before the dash. They bounce off the rim of the world. They do not wrap.</p>
+        </section>
+
+        <section id="how-rim">
+          <h2>The rim</h2>
+          <p>The world is a circle. Cross the rim and you come out on the far side, head, body, and all. Orbs stop at the edge. Saws bounce. You can use the wrap to show up behind someone who thought you were leaving the fight.</p>
+        </section>
+
+        <section id="how-marks">
+          <h2>Length marks</h2>
+          <p>Cross a mark and it flashes on the screen. The board ranks every living snake by length, and your name flashes as the number climbs.</p>
+          <ol class="how-marks">
+            <li>500</li>
+            <li>750</li>
+            <li>1,000</li>
+            <li>1,500</li>
+            <li>2,000</li>
+            <li>2,500</li>
+            <li>3,000</li>
+            <li>4,000</li>
+            <li>5,000</li>
+            <li>7,500</li>
+            <li>10,000</li>
+            <li>12,500</li>
+            <li>15,000</li>
+            <li>17,500</li>
+            <li>20,000</li>
+            <li>25,000</li>
+            <li>30,000</li>
+            <li>35,000</li>
+            <li>45,000</li>
+            <li>60,000</li>
+          </ol>
+        </section>
+
+        <section id="how-field">
+          <h2>On the field</h2>
+          <p>Length and rank sit in the corner. The leaderboard lists who is alive. Hide it, bring it back with Board, or drag the corner to resize it. The game remembers the size and whether you hid it.</p>
+          <p>The feed calls wrecks as they happen. Click a line to replay that kill. Press P, Escape, or Pause to freeze a game. Escape during a kill cam skips the replay.</p>
+          <p>Your best length stays on the menu. Hold the × beside it until the bar fills to wipe that record. The list under the menu is the arena right now, not your old scores. Click a name there to watch that snake.</p>
+        </section>
+
+        <section id="how-dead">
+          <h2>When you die</h2>
+          <p>The screen says Eliminated, who wrecked you or that a saw got you, and how long you were. Your orbs are already on the map. Play again jumps straight back in with the same name, skin, growth rate, and map. The menu keeps your best eight runs.</p>
+        </section>
+
+        <section id="how-tv">
+          <h2>World TV</h2>
+          <p>World TV watches the arena without putting you in it. From the menu, open World TV, or click a name on the live list. Click a snake, a name on the board, or a dot on the little map to lock the camera. Live follows the action on its own until you lock someone.</p>
+          <p>Change channel, or press space, flips to another snake and the wrecks around them. Left and right arrows, or [ and ], cycle who you are watching. Go back, or Escape, returns to the menu. Pause works here too. If you are locked on a snake when it wrecks or gets wrecked, the kill cam plays.</p>
+        </section>
+
+        <section id="how-last">
+          <h2>How to last</h2>
+          <ul class="how-tips">
+            <li>Eat in open water before you pick a fight. Early length is the cheap length.</li>
+            <li>Boost to close a gap or slip a saw, then let go. You cannot eat the orbs behind you. The next snake can.</li>
+            <li>Turn across a smaller snake’s path. Meeting head-on is a coin flip.</li>
+            <li>When you are huge, leave room to turn. A tight circle is how big snakes die.</li>
+            <li>Cut gold off from the side. A straight chase loses.</li>
+            <li>If a saw starts circling, leave before the charge, then come back for the dots.</li>
+            <li>A wreck is a feast. So is yours, if you stay in the pile.</li>
+          </ul>
+        </section>
+
+        <button type="button" id="how-close" class="play-btn" data-how-close>Got it</button>
+      </article>
     </div>
 
     <script src="game.js"></script>

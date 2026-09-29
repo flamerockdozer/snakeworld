@@ -81,6 +81,7 @@
   const DEATH_REPLAY_SEC = 1.15;
   const DEATH_TAPE_SEC = 0.62;
   const NEWS_TAPE_SEC = 0.85;
+  const DEATH_FADE = 0.5;
   const TV_DEATH_MIN = 48;
   const TV_DEATH_KEEP = 8;
 
@@ -1393,9 +1394,9 @@
   function kill(s, by, cause) {
     if (!s.alive) return;
     s.alive = false;
+    s.fade = DEATH_FADE;
     s.killedBy = by || null;
     s.cause = cause || (by ? "body" : "edge");
-    dumpSnake(s);
     burst(s.x, s.y, s.c1, 36, 260);
     const clip = makeKillClip(s, NEWS_TAPE_SEC);
     if (by) {
@@ -2854,6 +2855,7 @@
     if (replay) return;
 
     time += dt;
+    fadeCorpses(dt);
     shake = Math.max(0, shake - dt * 28);
     flash = Math.max(0, flash - dt);
     eatChainT -= dt;
@@ -2929,7 +2931,7 @@
       }
       if (snakes.length > BOT_COUNT + 30) {
         for (let i = snakes.length - 1; i >= 0 && snakes.length > BOT_COUNT + 8; i--) {
-          if (!snakes[i].alive && !snakes[i].player) snakes.splice(i, 1);
+          if (!snakes[i].alive && !snakes[i].player && !(snakes[i].fade > 0)) snakes.splice(i, 1);
         }
       }
     }
@@ -3775,7 +3777,9 @@
     drawFood();
 
     const drawList = [];
-    for (let i = 0; i < snakes.length; i++) if (snakes[i].alive) drawList.push(snakes[i]);
+    for (let i = 0; i < snakes.length; i++) {
+      if (snakes[i].alive || snakes[i].fade > 0) drawList.push(snakes[i]);
+    }
     drawList.sort((a, b) => a.mass - b.mass);
     for (let n = 0; n < drawList.length; n++) drawSnake(drawList[n]);
 
@@ -4135,9 +4139,25 @@
     ctx.stroke();
   }
 
+  function fadeCorpses(dt) {
+    for (let i = 0; i < snakes.length; i++) {
+      const s = snakes[i];
+      if (!(s.fade > 0)) continue;
+      s.fade -= dt;
+      if (s.fade > 0) continue;
+      s.fade = 0;
+      dumpSnake(s);
+    }
+  }
+
   function drawSnake(s) {
     const pts = s.points;
     if (pts.length < 2 || !snakeVisible(s)) return;
+    const fading = s.fade > 0;
+    if (fading) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, s.fade / DEATH_FADE);
+    }
 
     const rad = snakeRadius(s) * (s.player ? 1.12 : 1);
     ctx.lineCap = "round";
@@ -4231,6 +4251,8 @@
       ctx.fill();
       ctx.restore();
     }
+
+    if (fading) ctx.restore();
   }
 
   function drawEye(x, y, r, hx, hy) {

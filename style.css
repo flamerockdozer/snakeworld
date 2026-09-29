@@ -355,6 +355,42 @@ button:focus-visible {
     0 8px 18px rgba(255, 208, 86, 0.28);
 }
 
+#start-form .play-btn {
+  color: #d10f1a;
+  background: linear-gradient(180deg, #fff6b0 0%, #ffe14a 58%, #f0c400 100%);
+  border: 7px solid #000;
+  text-shadow: none;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.28);
+}
+
+#start-form .play-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 12px,
+    #fff 12px 20px
+  );
+  pointer-events: none;
+}
+
+#start-form .play-btn::after {
+  display: none;
+}
+
+#start-form .play-btn:hover,
+#start-form .play-btn:focus-visible {
+  color: #d10f1a;
+  background: linear-gradient(180deg, #fff9c8 0%, #ffe86a 55%, #f5ce1c 100%);
+}
+
+#start-form .play-btn:active {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+}
+
 button.skin {
   padding: 0;
   animation: none;
@@ -373,17 +409,6 @@ button.skin:focus-visible {
   left: 1.1rem;
   top: 1.1rem;
   pointer-events: auto;
-  animation: none;
-  box-shadow: none;
-  letter-spacing: 0.14em;
-  padding: 0.55rem 1.2rem;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-#tv-back:hover,
-#tv-back:focus-visible {
-  background: #000;
 }
 
 #pause {
@@ -391,18 +416,6 @@ button.skin:focus-visible {
   right: 1.1rem;
   bottom: 1.1rem;
   pointer-events: auto;
-  animation: none;
-  box-shadow: none;
-  letter-spacing: 0.14em;
-  padding: 0.55rem 1.2rem;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  cursor: pointer;
-}
-
-#pause:hover,
-#pause:focus-visible {
-  background: #000;
 }
 
 #length-pop {
@@ -475,7 +488,7 @@ button.skin:focus-visible {
 #tv-hint {
   position: absolute;
   left: 50%;
-  bottom: 4.15rem;
+  bottom: 7.4rem;
   transform: translateX(-50%);
   font-size: 0.78rem;
   letter-spacing: 0.08em;
@@ -487,20 +500,23 @@ button.skin:focus-visible {
   position: absolute;
   left: 50%;
   bottom: 1.1rem;
-  transform: translateX(-50%);
   pointer-events: auto;
-  animation: none;
-  box-shadow: none;
-  letter-spacing: 0.14em;
-  padding: 0.55rem 1.2rem;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  cursor: pointer;
+  animation: channelpulse 2.4s ease-in-out infinite;
 }
 
-#tv-channel:hover,
-#tv-channel:focus-visible {
-  background: #000;
+#tv-channel:active {
+  animation: none;
+  transform: translateX(-50%) translateY(0.08em) scale(0.98);
+}
+
+@keyframes channelpulse {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.04);
+  }
 }
 
 #tv-live {

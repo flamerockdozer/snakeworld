@@ -153,6 +153,36 @@
       name: "Triangle",
       svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="18,4 32,31 4,31"/></svg>',
     },
+    {
+      id: "diamond",
+      name: "Diamond",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="18,4 32,18 18,32 4,18"/></svg>',
+    },
+    {
+      id: "brick",
+      name: "Brick",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="5" width="13" height="8"/><rect x="19" y="5" width="13" height="8"/><rect x="4" y="14" width="8" height="8"/><rect x="14" y="14" width="13" height="8"/><rect x="4" y="23" width="13" height="8"/><rect x="19" y="23" width="13" height="8"/></svg>',
+    },
+    {
+      id: "oct",
+      name: "Octagon",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="12,4 24,4 32,12 32,24 24,32 12,32 4,24 4,12"/></svg>',
+    },
+    {
+      id: "circle",
+      name: "Circle",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="12"/></svg>',
+    },
+    {
+      id: "slant",
+      name: "Slant",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="10,5 28,5 26,31 8,31"/></svg>',
+    },
+    {
+      id: "wave",
+      name: "Wave",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 14c4-6 8-6 10 0s6 6 10 0 6-6 8 0M4 24c4-6 8-6 10 0s6 6 10 0 6-6 8 0"/></svg>',
+    },
   ];
 
   const FILLS = [
@@ -3218,6 +3248,27 @@
       snareVol: 0.15,
       kickHz: 146,
     },
+    wild: {
+      bass: [0, 3, 0, -1, 1, 3, 2, 0],
+      kick: [1, 0, 1, 1, 0, 1, 0, 1],
+      snare: [0, 1, 0, 1, 1, 0, 1, 0],
+      hat: "busy",
+      bassHold: 0.28,
+      bassVol: 0.26,
+      snareVol: 0.22,
+      kickHz: 190,
+    },
+    spin: {
+      bass: [3, -1, 0, 2, -1, 1, 3, -1],
+      kick: [1, 1, 0, 0, 1, 0, 1, 1],
+      snare: [0, 0, 1, 1, 0, 1, 0, 0],
+      hat: "busy",
+      bassHold: 0.22,
+      bassVol: 0.24,
+      snareVol: 0.18,
+      snareFreq: 2600,
+      kickHz: 200,
+    },
   };
   function tune(name, bpm, song, lead, groove, wave, opt) {
     const track = {
@@ -3518,8 +3569,70 @@
       73, 78, 81, 78, 73, 66, 73, 78,
       74, 78, 81, 86, 81, 78, 74, 69,
     ], GROOVE.zap, "triangle", { hold: 0.3 }),
+    tune("Frenzy", 132, [CHORD.C, CHORD.E, CHORD.Ab, CHORD.Fs], [
+      72, 76, 79, 84, 79, 76, 84, 79,
+      76, 80, 83, 86, 83, 80, 76, 71,
+      80, 75, 72, 68, 72, 75, 80, 84,
+      78, 82, 85, 82, 78, 73, 78, 0,
+    ], GROOVE.dart, "triangle", { hold: 0.72 }),
+    tune("Wacko", 128, [CHORD.Bb, CHORD.E, CHORD.Ab, CHORD.Bm], [
+      76, 79, 82, 86, 82, 79, 76, 82,
+      71, 74, 77, 83, 77, 74, 71, 77,
+      81, 84, 76, 72, 69, 72, 76, 81,
+      64, 71, 76, 83, 76, 71, 64, 0,
+    ], GROOVE.hop, "triangle", { hold: 0.8 }),
+    tune("Spiral", 124, [CHORD.Fs, CHORD.C, CHORD.E, CHORD.Bb], [
+      84, 83, 81, 79, 76, 74, 72, 71,
+      72, 74, 76, 79, 81, 83, 84, 83,
+      79, 77, 76, 74, 72, 74, 76, 79,
+      74, 72, 71, 69, 67, 69, 72, 0,
+    ], GROOVE.chime, "triangle", { pad: 0.06 }),
+    tune("Mayhem", 122, [CHORD.Em, CHORD.Ab, CHORD.D, CHORD.Bb], [
+      64, 72, 76, 84, 79, 76, 72, 67,
+      72, 67, 75, 79, 82, 79, 75, 70,
+      76, 81, 85, 81, 76, 73, 69, 66,
+      73, 76, 81, 85, 81, 76, 73, 0,
+    ], GROOVE.pump, "sine", { hold: 0.7, pad: 0.05 }),
+    tune("Jolt", 138, [CHORD.E, CHORD.Bb, CHORD.Fs, CHORD.C], [
+      79, 79, 83, 79, 86, 83, 79, 74,
+      76, 76, 81, 76, 83, 81, 76, 71,
+      81, 81, 86, 81, 84, 81, 79, 76,
+      84, 81, 79, 76, 74, 76, 79, 0,
+    ], GROOVE.zap, "triangle", { hold: 0.5 }),
+    tune("Riot", 128, [CHORD.Ab, CHORD.E, CHORD.Bb, CHORD.Fs], [
+      77, 82, 74, 79, 70, 75, 82, 77,
+      80, 85, 73, 78, 68, 73, 80, 75,
+      75, 80, 71, 76, 66, 71, 78, 73,
+      72, 77, 84, 79, 74, 70, 77, 0,
+    ], GROOVE.sun, "triangle", { hold: 0.65, shine: 12 }),
     { name: "Off", off: true },
   ];
+
+  function liftLead(lead, shift) {
+    const out = new Array(lead.length);
+    for (let i = 0; i < lead.length; i++) {
+      const n = lead[i];
+      if (!n) {
+        out[i] = 0;
+        continue;
+      }
+      let v = n + shift;
+      while (v > 88) v -= 12;
+      while (v < 58) v += 12;
+      out[i] = v;
+    }
+    return out;
+  }
+
+  for (let i = 0; i < TRACKS.length; i++) {
+    const track = TRACKS[i];
+    if (track.off || !track.song || !track.lead) continue;
+    const song = track.song;
+    const lead = track.lead;
+    const spun = song.slice(1).concat(song[0]);
+    track.song = song.concat(spun, song);
+    track.lead = lead.concat(liftLead(lead, 4), liftLead(lead, -3));
+  }
 
   function midiHz(n) {
     return 440 * Math.pow(2, (n - 69) / 12);
@@ -3858,8 +3971,19 @@
     const fills = new Map();
     const outline = new Path2D();
 
+    if (mapType === "circle") {
+      ctx.fillStyle = m.arena;
+      ctx.fillRect(view.minX - 80, view.minY - 80, view.maxX - view.minX + 160, view.maxY - view.minY + 160);
+    }
+
     if (mapType === "square") addSquareTiles(fills, outline, tones, view);
     else if (mapType === "tri") addTriTiles(fills, outline, tones, view);
+    else if (mapType === "diamond") addDiamondTiles(fills, outline, tones, view);
+    else if (mapType === "brick") addBrickTiles(fills, outline, tones, view);
+    else if (mapType === "oct") addOctTiles(fills, outline, tones, view);
+    else if (mapType === "circle") addCircleTiles(fills, outline, tones, view);
+    else if (mapType === "slant") addSlantTiles(fills, outline, tones, view);
+    else if (mapType === "wave") addWaveTiles(fills, outline, tones, view);
     else addHexTiles(fills, outline, tones, view);
 
     for (const [color, path] of fills) {
@@ -3909,6 +4033,155 @@
       for (let col = col0; col <= col1; col++) {
         const x = col * side;
         stampTile(fills, outline, tones, col, row, (path) => traceSquare(x, y, side, path));
+      }
+    }
+  }
+
+  function addDiamondTiles(fills, outline, tones, view) {
+    const s = 46;
+    const col0 = Math.floor(view.minX / s) - 2;
+    const col1 = Math.ceil(view.maxX / s) + 2;
+    const row0 = Math.floor(view.minY / s) - 2;
+    const row1 = Math.ceil(view.maxY / s) + 2;
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        if ((col + row) & 1) continue;
+        stampTile(fills, outline, tones, col, row, (path) => traceDiamond(col * s, row * s, s, path));
+      }
+    }
+  }
+
+  function traceDiamond(x, y, r, path) {
+    path.moveTo(x, y - r);
+    path.lineTo(x + r, y);
+    path.lineTo(x, y + r);
+    path.lineTo(x - r, y);
+    path.closePath();
+  }
+
+  function addBrickTiles(fills, outline, tones, view) {
+    const w = 92;
+    const h = 46;
+    const row0 = Math.floor(view.minY / h) - 1;
+    const row1 = Math.ceil(view.maxY / h) + 1;
+    for (let row = row0; row <= row1; row++) {
+      const shift = row & 1 ? w * 0.5 : 0;
+      const col0 = Math.floor((view.minX - shift) / w) - 1;
+      const col1 = Math.ceil((view.maxX - shift) / w) + 1;
+      const y = row * h;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * w + shift;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x, y);
+          path.lineTo(x + w, y);
+          path.lineTo(x + w, y + h);
+          path.lineTo(x, y + h);
+          path.closePath();
+        });
+      }
+    }
+  }
+
+  function addOctTiles(fills, outline, tones, view) {
+    const s = 78;
+    const c = 22;
+    const col0 = Math.floor(view.minX / s) - 1;
+    const col1 = Math.ceil(view.maxX / s) + 1;
+    const row0 = Math.floor(view.minY / s) - 1;
+    const row1 = Math.ceil(view.maxY / s) + 1;
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        const x = col * s + s * 0.5;
+        const y = row * s + s * 0.5;
+        stampTile(fills, outline, tones, col, row, (path) => traceOct(x, y, s, c, path));
+        stampTile(fills, outline, tones, col + 2, row + 5, (path) => traceDiamond((col + 1) * s, (row + 1) * s, c, path));
+      }
+    }
+  }
+
+  function traceOct(x, y, s, c, path) {
+    const h = s * 0.5;
+    path.moveTo(x - h + c, y - h);
+    path.lineTo(x + h - c, y - h);
+    path.lineTo(x + h, y - h + c);
+    path.lineTo(x + h, y + h - c);
+    path.lineTo(x + h - c, y + h);
+    path.lineTo(x - h + c, y + h);
+    path.lineTo(x - h, y + h - c);
+    path.lineTo(x - h, y - h + c);
+    path.closePath();
+  }
+
+  function addCircleTiles(fills, outline, tones, view) {
+    const step = 72;
+    const r = 26;
+    const col0 = Math.floor(view.minX / step) - 1;
+    const col1 = Math.ceil(view.maxX / step) + 1;
+    const row0 = Math.floor(view.minY / step) - 1;
+    const row1 = Math.ceil(view.maxY / step) + 1;
+    for (let row = row0; row <= row1; row++) {
+      const shift = row & 1 ? step * 0.5 : 0;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * step + shift;
+        const y = row * step;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x + r, y);
+          path.arc(x, y, r, 0, Math.PI * 2);
+        });
+      }
+    }
+  }
+
+  function addSlantTiles(fills, outline, tones, view) {
+    const w = 70;
+    const h = 50;
+    const skew = 26;
+    const row0 = Math.floor((view.minY - skew) / h) - 2;
+    const row1 = Math.ceil(view.maxY / h) + 2;
+    for (let row = row0; row <= row1; row++) {
+      const y = row * h;
+      const shift = row * skew;
+      const col0 = Math.floor((view.minX - shift) / w) - 2;
+      const col1 = Math.ceil((view.maxX - shift) / w) + 2;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * w + shift;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x, y);
+          path.lineTo(x + w, y);
+          path.lineTo(x + w + skew, y + h);
+          path.lineTo(x + skew, y + h);
+          path.closePath();
+        });
+      }
+    }
+  }
+
+  function addWaveTiles(fills, outline, tones, view) {
+    const seg = 84;
+    const amp = 52;
+    const ripple = 16;
+    const freq = (Math.PI * 2) / (seg * 2);
+    const steps = 4;
+    const yWave = (x, row) => row * amp + Math.sin(x * freq) * ripple;
+    const row0 = Math.floor(view.minY / amp) - 2;
+    const row1 = Math.ceil(view.maxY / amp) + 2;
+    const col0 = Math.floor(view.minX / seg) - 1;
+    const col1 = Math.ceil(view.maxX / seg) + 1;
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        const x0 = col * seg;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x0, yWave(x0, row));
+          for (let s = 1; s <= steps; s++) {
+            const x = x0 + (seg * s) / steps;
+            path.lineTo(x, yWave(x, row));
+          }
+          for (let s = steps; s >= 0; s--) {
+            const x = x0 + (seg * s) / steps;
+            path.lineTo(x, yWave(x, row + 1));
+          }
+          path.closePath();
+        });
       }
     }
   }

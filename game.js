@@ -183,6 +183,41 @@
       name: "Wave",
       svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 14c4-6 8-6 10 0s6 6 10 0 6-6 8 0M4 24c4-6 8-6 10 0s6 6 10 0 6-6 8 0"/></svg>',
     },
+    {
+      id: "stripe",
+      name: "Stripe",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="5" y="6" width="26" height="6"/><rect x="5" y="15" width="26" height="6"/><rect x="5" y="24" width="26" height="6"/></svg>',
+    },
+    {
+      id: "arch",
+      name: "Arch",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M6 30V16a12 12 0 0 1 24 0v14"/></svg>',
+    },
+    {
+      id: "zigzag",
+      name: "Zigzag",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 12 L14 6 L22 12 L32 6 M4 22 L14 16 L22 22 L32 16 M4 32 L14 26 L22 32 L32 26"/></svg>',
+    },
+    {
+      id: "ring",
+      name: "Ring",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="12"/><circle cx="18" cy="18" r="6"/></svg>',
+    },
+    {
+      id: "star",
+      name: "Star",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="18,3 22,13 33,13 24,20 27,31 18,24 9,31 12,20 3,13 14,13"/></svg>',
+    },
+    {
+      id: "pill",
+      name: "Pill",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="12" width="24" height="12" rx="6"/></svg>',
+    },
+    {
+      id: "slash",
+      name: "Slash",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="14,4 22,4 10,32 2,32"/><polygon points="28,4 36,4 24,32 16,32"/></svg>',
+    },
   ];
 
   const FILLS = [
@@ -3971,20 +4006,29 @@
     const fills = new Map();
     const outline = new Path2D();
 
-    if (mapType === "circle") {
+    if (mapType === "circle" || mapType === "ring" || mapType === "star" || mapType === "pill") {
       ctx.fillStyle = m.arena;
       ctx.fillRect(view.minX - 80, view.minY - 80, view.maxX - view.minX + 160, view.maxY - view.minY + 160);
     }
 
-    if (mapType === "square") addSquareTiles(fills, outline, tones, view);
-    else if (mapType === "tri") addTriTiles(fills, outline, tones, view);
-    else if (mapType === "diamond") addDiamondTiles(fills, outline, tones, view);
-    else if (mapType === "brick") addBrickTiles(fills, outline, tones, view);
-    else if (mapType === "oct") addOctTiles(fills, outline, tones, view);
-    else if (mapType === "circle") addCircleTiles(fills, outline, tones, view);
-    else if (mapType === "slant") addSlantTiles(fills, outline, tones, view);
-    else if (mapType === "wave") addWaveTiles(fills, outline, tones, view);
-    else addHexTiles(fills, outline, tones, view);
+    const floors = {
+      square: addSquareTiles,
+      tri: addTriTiles,
+      diamond: addDiamondTiles,
+      brick: addBrickTiles,
+      oct: addOctTiles,
+      circle: addCircleTiles,
+      slant: addSlantTiles,
+      wave: addWaveTiles,
+      stripe: addStripeTiles,
+      arch: addArchTiles,
+      zigzag: addZigzagTiles,
+      ring: addRingTiles,
+      star: addStarTiles,
+      pill: addPillTiles,
+      slash: addSlashTiles,
+    };
+    (floors[mapType] || addHexTiles)(fills, outline, tones, view);
 
     for (const [color, path] of fills) {
       ctx.fillStyle = color;
@@ -4180,6 +4224,194 @@
             const x = x0 + (seg * s) / steps;
             path.lineTo(x, yWave(x, row + 1));
           }
+          path.closePath();
+        });
+      }
+    }
+  }
+
+  function addStripeTiles(fills, outline, tones, view) {
+    const h = 46;
+    const row0 = Math.floor(view.minY / h) - 1;
+    const row1 = Math.ceil(view.maxY / h) + 1;
+    const x0 = view.minX - 40;
+    const x1 = view.maxX + 40;
+    for (let row = row0; row <= row1; row++) {
+      const y = row * h;
+      stampTile(fills, outline, tones, 0, row, (path) => {
+        path.moveTo(x0, y);
+        path.lineTo(x1, y);
+        path.lineTo(x1, y + h);
+        path.lineTo(x0, y + h);
+        path.closePath();
+      });
+    }
+  }
+
+  function addArchTiles(fills, outline, tones, view) {
+    const w = 72;
+    const r = w * 0.5;
+    const period = r + 20;
+    const steps = 6;
+    const yAt = (x, row) => {
+      const u = ((x % w) + w) % w;
+      const dx = u - r;
+      const inside = r * r - dx * dx;
+      return row * period + (inside > 0 ? Math.sqrt(inside) : 0);
+    };
+    const row0 = Math.floor(view.minY / period) - 2;
+    const row1 = Math.ceil(view.maxY / period) + 2;
+    const col0 = Math.floor(view.minX / w) - 1;
+    const col1 = Math.ceil(view.maxX / w) + 1;
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        const x0 = col * w;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x0, yAt(x0, row));
+          for (let s = 1; s <= steps; s++) {
+            const x = x0 + (w * s) / steps;
+            path.lineTo(x, yAt(x, row));
+          }
+          for (let s = steps; s >= 0; s--) {
+            const x = x0 + (w * s) / steps;
+            path.lineTo(x, yAt(x, row + 1));
+          }
+          path.closePath();
+        });
+      }
+    }
+  }
+
+  function addZigzagTiles(fills, outline, tones, view) {
+    const seg = 64;
+    const h = 48;
+    const peak = 22;
+    const row0 = Math.floor(view.minY / h) - 2;
+    const row1 = Math.ceil(view.maxY / h) + 2;
+    const col0 = Math.floor(view.minX / seg) - 1;
+    const col1 = Math.ceil(view.maxX / seg) + 1;
+    const yTop = (x, row) => {
+      const u = ((x % seg) + seg) % seg;
+      const up = u < seg * 0.5;
+      const t = up ? u / (seg * 0.5) : (u - seg * 0.5) / (seg * 0.5);
+      return row * h + (up ? peak * (1 - t) : peak * t);
+    };
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        const x0 = col * seg;
+        const x1 = x0 + seg * 0.5;
+        const x2 = x0 + seg;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x0, yTop(x0, row));
+          path.lineTo(x1, yTop(x1, row));
+          path.lineTo(x2, yTop(x2, row));
+          path.lineTo(x2, yTop(x2, row + 1));
+          path.lineTo(x1, yTop(x1, row + 1));
+          path.lineTo(x0, yTop(x0, row + 1));
+          path.closePath();
+        });
+      }
+    }
+  }
+
+  function addRingTiles(fills, outline, tones, view) {
+    const step = 78;
+    const r = 28;
+    const hole = 14;
+    const col0 = Math.floor(view.minX / step) - 1;
+    const col1 = Math.ceil(view.maxX / step) + 1;
+    const row0 = Math.floor(view.minY / step) - 1;
+    const row1 = Math.ceil(view.maxY / step) + 1;
+    for (let row = row0; row <= row1; row++) {
+      const shift = row & 1 ? step * 0.5 : 0;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * step + shift;
+        const y = row * step;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x + r, y);
+          path.arc(x, y, r, 0, Math.PI * 2);
+          path.moveTo(x + hole, y);
+          path.arc(x, y, hole, 0, Math.PI * 2, true);
+        });
+      }
+    }
+  }
+
+  function addStarTiles(fills, outline, tones, view) {
+    const step = 76;
+    const r = 30;
+    const col0 = Math.floor(view.minX / step) - 1;
+    const col1 = Math.ceil(view.maxX / step) + 1;
+    const row0 = Math.floor(view.minY / step) - 1;
+    const row1 = Math.ceil(view.maxY / step) + 1;
+    for (let row = row0; row <= row1; row++) {
+      const shift = row & 1 ? step * 0.5 : 0;
+      for (let col = col0; col <= col1; col++) {
+        stampTile(fills, outline, tones, col, row, (path) => traceStar(col * step + shift, row * step, r, path));
+      }
+    }
+  }
+
+  function traceStar(x, y, r, path) {
+    const inner = r * 0.42;
+    for (let i = 0; i < 8; i++) {
+      const a = (Math.PI / 4) * i - Math.PI / 2;
+      const rad = i & 1 ? inner : r;
+      const px = x + Math.cos(a) * rad;
+      const py = y + Math.sin(a) * rad;
+      if (i === 0) path.moveTo(px, py);
+      else path.lineTo(px, py);
+    }
+    path.closePath();
+  }
+
+  function addPillTiles(fills, outline, tones, view) {
+    const w = 78;
+    const h = 28;
+    const gapX = 96;
+    const gapY = 52;
+    const col0 = Math.floor(view.minX / gapX) - 1;
+    const col1 = Math.ceil(view.maxX / gapX) + 1;
+    const row0 = Math.floor(view.minY / gapY) - 1;
+    const row1 = Math.ceil(view.maxY / gapY) + 1;
+    for (let row = row0; row <= row1; row++) {
+      const shift = row & 1 ? gapX * 0.5 : 0;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * gapX + shift;
+        const y = row * gapY;
+        stampTile(fills, outline, tones, col, row, (path) => tracePill(x, y, w, h, path));
+      }
+    }
+  }
+
+  function tracePill(x, y, w, h, path) {
+    const r = h * 0.5;
+    path.moveTo(x + r, y - r);
+    path.lineTo(x + w - r, y - r);
+    path.arc(x + w - r, y, r, -Math.PI / 2, Math.PI / 2);
+    path.lineTo(x + r, y + r);
+    path.arc(x + r, y, r, Math.PI / 2, Math.PI * 1.5);
+    path.closePath();
+  }
+
+  function addSlashTiles(fills, outline, tones, view) {
+    const w = 34;
+    const h = 86;
+    const skew = 52;
+    const row0 = Math.floor((view.minY - skew) / h) - 2;
+    const row1 = Math.ceil(view.maxY / h) + 2;
+    for (let row = row0; row <= row1; row++) {
+      const y = row * h;
+      const shift = row * skew;
+      const col0 = Math.floor((view.minX - shift) / w) - 2;
+      const col1 = Math.ceil((view.maxX - shift) / w) + 2;
+      for (let col = col0; col <= col1; col++) {
+        const x = col * w + shift;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x, y);
+          path.lineTo(x + w, y);
+          path.lineTo(x + w + skew, y + h);
+          path.lineTo(x + skew, y + h);
           path.closePath();
         });
       }

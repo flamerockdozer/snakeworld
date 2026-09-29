@@ -30,6 +30,7 @@
   const mapOpacityValueEl = document.getElementById("map-opacity-value");
   const growRateEl = document.getElementById("grow-rate");
   const growRateValueEl = document.getElementById("grow-rate-value");
+  const musicEl = document.getElementById("music");
   const highscoresEl = document.getElementById("highscores");
   const deadScoresEl = document.getElementById("dead-scores");
   const tvBackBtn = document.getElementById("tv-back");
@@ -248,6 +249,14 @@
   let audioCtx = null;
   let boostHum = null;
   let boostGain = null;
+  let musicIndex = 0;
+  let musicGain = null;
+  let musicComp = null;
+  let musicTimer = 0;
+  let musicTime = 0;
+  let musicBar = 0;
+  let noiseBuf = null;
+  const musicNodes = [];
   let tape = [];
   let tapeAcc = 0;
   let replay = null;
@@ -3044,6 +3053,7 @@
       audioCtx = new AC();
     }
     if (audioCtx.state === "suspended") audioCtx.resume();
+    startMusic();
     return audioCtx;
   }
 
@@ -3104,6 +3114,629 @@
       boostGain.gain.linearRampToValueAtTime(0.0001, a.currentTime + 0.12);
     }
   }
+
+  const CHORD = {
+    C: { bass: 36, fifth: 43, third: 40, chord: [60, 64, 67] },
+    Am: { bass: 45, fifth: 52, third: 48, chord: [57, 60, 64] },
+    F: { bass: 41, fifth: 48, third: 45, chord: [53, 57, 60] },
+    G: { bass: 43, fifth: 50, third: 47, chord: [55, 59, 62] },
+    D: { bass: 38, fifth: 45, third: 42, chord: [62, 66, 69] },
+    A: { bass: 45, fifth: 52, third: 49, chord: [57, 61, 64] },
+    Em: { bass: 40, fifth: 47, third: 43, chord: [52, 55, 59] },
+    Dm: { bass: 38, fifth: 45, third: 41, chord: [50, 53, 57] },
+    Bb: { bass: 46, fifth: 53, third: 50, chord: [58, 62, 65] },
+    Gm: { bass: 43, fifth: 50, third: 46, chord: [55, 58, 62] },
+    Eb: { bass: 39, fifth: 46, third: 43, chord: [51, 55, 58] },
+    Fsm: { bass: 42, fifth: 49, third: 45, chord: [54, 57, 61] },
+    E: { bass: 40, fifth: 47, third: 44, chord: [64, 68, 71] },
+    B: { bass: 47, fifth: 54, third: 51, chord: [59, 63, 66] },
+    Bm: { bass: 47, fifth: 54, third: 50, chord: [59, 62, 66] },
+    Fs: { bass: 42, fifth: 49, third: 46, chord: [54, 58, 61] },
+    Ab: { bass: 44, fifth: 51, third: 48, chord: [56, 60, 63] },
+  };
+  const GROOVE = {
+    sun: {
+      bass: [0, -1, 1, 0, 3, -1, 2, 1],
+      kick: [1, 0, 0, 0, 1, 0, 0, 1],
+      snare: [0, 0, 1, 0, 0, 0, 1, 0],
+      hat: "8",
+      bassHold: 0.85,
+      bassVol: 0.19,
+      snareVol: 0.16,
+      kickHz: 150,
+    },
+    skip: {
+      bass: [-1, 0, -1, 1, -1, 0, -1, 2],
+      kick: [1, 0, 0, 1, 1, 0, 0, 1],
+      snare: [0, 0, 1, 0, 0, 0, 1, 0],
+      hat: "off",
+      bassHold: 0.5,
+      bassVol: 0.24,
+      snareVol: 0.13,
+      kickHz: 172,
+    },
+    zap: {
+      bass: [0, 0, 3, 1, 0, 0, 2, 1],
+      kick: [1, 0, 1, 0, 1, 0, 1, 0],
+      snare: [0, 0, 1, 0, 0, 0, 1, 0],
+      hat: "busy",
+      bassHold: 0.62,
+      bassVol: 0.2,
+      snareVol: 0.2,
+      kickHz: 164,
+    },
+    bubble: {
+      bass: [0, -1, 1, -1, 3, -1, 2, 0],
+      kick: [1, 0, 0, 1, 0, 0, 1, 0],
+      snare: [0, 0, 1, 0, 0, 0, 1, 0],
+      hat: "8",
+      bassHold: 0.42,
+      bassVol: 0.18,
+      snareVol: 0.11,
+      kickHz: 140,
+    },
+    chime: {
+      bass: [0, -1, 1, -1, 0, 3, -1, 2],
+      kick: [1, 0, 0, 0, 1, 0, 0, 0],
+      snare: [0, 0, 1, 0, 0, 0, 1, 0],
+      hat: "8",
+      bassHold: 1.15,
+      bassVol: 0.15,
+      snareVol: 0.09,
+      snareFreq: 2400,
+      kickHz: 128,
+    },
+    dart: {
+      bass: [0, -1, 0, 1, -1, 3, 0, 2],
+      kick: [1, 0, 0, 1, 0, 0, 1, 0],
+      snare: [0, 0, 1, 0, 0, 1, 0, 0],
+      hat: "off",
+      bassHold: 0.58,
+      bassVol: 0.23,
+      snareVol: 0.17,
+      kickHz: 158,
+    },
+    hop: {
+      bass: [0, 3, -1, 1, 0, 2, -1, 1],
+      kick: [1, 0, 1, 0, 0, 1, 0, 1],
+      snare: [0, 0, 0, 0, 1, 0, 1, 0],
+      hat: "off",
+      bassHold: 0.36,
+      bassVol: 0.22,
+      snareVol: 0.14,
+      kickHz: 168,
+    },
+    pump: {
+      bass: [0, 0, -1, 1, 0, 3, -1, 2],
+      kick: [1, 0, 0, 0, 1, 0, 1, 0],
+      snare: [0, 0, 1, 0, 0, 0, 1, 0],
+      hat: "busy",
+      bassHold: 0.7,
+      bassVol: 0.21,
+      snareVol: 0.15,
+      kickHz: 146,
+    },
+  };
+  function tune(name, bpm, song, lead, groove, wave, opt) {
+    const track = {
+      name: name,
+      bpm: bpm,
+      song: song,
+      lead: lead,
+      groove: groove,
+      wave: wave,
+      leadVol: wave === "square" ? 0.046 : wave === "sine" ? 0.11 : 0.12,
+      pad: 0.04,
+    };
+    if (opt) {
+      if (opt.hold) track.hold = opt.hold;
+      if (opt.shine) track.shine = opt.shine;
+      if (opt.pad) track.pad = opt.pad;
+      if (opt.leadVol) track.leadVol = opt.leadVol;
+    }
+    return track;
+  }
+  const TRACKS = [
+    {
+      name: "Lagoon",
+      bpm: 114,
+      song: [CHORD.C, CHORD.Am, CHORD.F, CHORD.G],
+      lead: [
+        76, 79, 76, 72, 74, 76, 79, 76,
+        72, 74, 76, 74, 72, 71, 72, 0,
+        76, 79, 76, 72, 74, 76, 81, 79,
+        76, 74, 72, 71, 72, 72, 76, 0,
+      ],
+      groove: GROOVE.sun,
+      wave: "triangle",
+      leadVol: 0.12,
+      pad: 0.06,
+    },
+    {
+      name: "Skip",
+      bpm: 126,
+      song: [CHORD.D, CHORD.G, CHORD.A, CHORD.D],
+      lead: [
+        78, 81, 78, 74, 78, 81, 85, 86,
+        81, 78, 74, 76, 78, 78, 78, 0,
+        78, 81, 78, 74, 73, 74, 78, 81,
+        78, 76, 74, 73, 74, 74, 74, 0,
+      ],
+      groove: GROOVE.skip,
+      wave: "square",
+      leadVol: 0.05,
+      hold: 0.48,
+      pad: 0.035,
+    },
+    {
+      name: "Zap",
+      bpm: 138,
+      song: [CHORD.G, CHORD.D, CHORD.Em, CHORD.C],
+      lead: [
+        83, 83, 86, 83, 81, 79, 83, 86,
+        83, 83, 86, 91, 86, 83, 81, 79,
+        79, 79, 83, 86, 83, 81, 79, 76,
+        83, 86, 83, 81, 79, 79, 79, 0,
+      ],
+      groove: GROOVE.zap,
+      wave: "square",
+      leadVol: 0.046,
+      hold: 0.4,
+      pad: 0.03,
+    },
+    {
+      name: "Bubble",
+      bpm: 118,
+      song: [CHORD.F, CHORD.C, CHORD.Dm, CHORD.Bb],
+      lead: [
+        65, 69, 72, 77, 72, 69, 65, 69,
+        74, 77, 81, 74, 72, 69, 65, 62,
+        65, 69, 72, 77, 76, 74, 72, 69,
+        70, 74, 77, 74, 72, 69, 65, 65,
+      ],
+      groove: GROOVE.bubble,
+      wave: "sine",
+      leadVol: 0.11,
+      hold: 0.72,
+      pad: 0.05,
+    },
+    {
+      name: "Stuck",
+      bpm: 122,
+      song: [CHORD.A, CHORD.Fsm, CHORD.D, CHORD.E],
+      lead: [
+        76, 76, 76, 73, 74, 76, 76, 0,
+        76, 76, 76, 73, 74, 73, 71, 69,
+        76, 76, 76, 73, 74, 76, 78, 76,
+        74, 73, 71, 69, 71, 73, 76, 0,
+      ],
+      groove: GROOVE.sun,
+      wave: "triangle",
+      leadVol: 0.13,
+      hold: 0.62,
+      pad: 0.04,
+    },
+    {
+      name: "Ping",
+      bpm: 132,
+      song: [CHORD.E, CHORD.A, CHORD.B, CHORD.E],
+      lead: [
+        83, 76, 83, 76, 80, 83, 76, 80,
+        83, 88, 83, 80, 76, 80, 83, 76,
+        83, 76, 83, 76, 80, 83, 88, 83,
+        80, 76, 75, 76, 80, 83, 83, 0,
+      ],
+      groove: GROOVE.bubble,
+      wave: "triangle",
+      leadVol: 0.1,
+      hold: 0.38,
+      shine: 12,
+      pad: 0.04,
+    },
+    {
+      name: "Chime",
+      bpm: 112,
+      song: [CHORD.Bb, CHORD.F, CHORD.Gm, CHORD.Eb],
+      lead: [
+        77, 74, 70, 74, 77, 79, 77, 74,
+        79, 77, 74, 70, 74, 77, 79, 77,
+        77, 74, 70, 74, 82, 79, 77, 74,
+        75, 74, 72, 70, 70, 70, 74, 0,
+      ],
+      groove: GROOVE.chime,
+      wave: "triangle",
+      leadVol: 0.1,
+      shine: 12,
+      pad: 0.07,
+    },
+    {
+      name: "Dart",
+      bpm: 130,
+      song: [CHORD.C, CHORD.Bb, CHORD.F, CHORD.C],
+      lead: [
+        79, 79, 81, 79, 76, 79, 81, 84,
+        79, 79, 81, 79, 76, 74, 72, 0,
+        77, 77, 79, 77, 74, 77, 79, 82,
+        79, 77, 76, 74, 72, 72, 79, 0,
+      ],
+      groove: GROOVE.dart,
+      wave: "square",
+      leadVol: 0.046,
+      hold: 0.5,
+      pad: 0.035,
+    },
+    {
+      name: "Reef",
+      bpm: 116,
+      song: [CHORD.G, CHORD.Em, CHORD.C, CHORD.D],
+      lead: [
+        74, 76, 79, 81, 79, 76, 74, 71,
+        74, 76, 79, 83, 81, 79, 76, 74,
+        74, 76, 79, 81, 79, 76, 74, 71,
+        72, 74, 76, 74, 71, 71, 74, 0,
+      ],
+      groove: GROOVE.bubble,
+      wave: "triangle",
+      leadVol: 0.12,
+      pad: 0.055,
+    },
+    {
+      name: "Loop",
+      bpm: 128,
+      song: [CHORD.C, CHORD.G, CHORD.Am, CHORD.F],
+      lead: [
+        76, 79, 76, 72, 76, 79, 81, 79,
+        76, 79, 76, 72, 76, 79, 81, 79,
+        76, 79, 76, 72, 74, 76, 79, 76,
+        72, 74, 76, 79, 76, 74, 72, 0,
+      ],
+      groove: GROOVE.zap,
+      wave: "triangle",
+      leadVol: 0.12,
+      hold: 0.58,
+      pad: 0.03,
+    },
+    tune("Splash", 124, [CHORD.F, CHORD.C, CHORD.Bb, CHORD.F], [
+      77, 81, 84, 77, 74, 77, 81, 0,
+      77, 81, 84, 89, 84, 81, 77, 74,
+      82, 79, 77, 74, 77, 79, 82, 77,
+      74, 72, 70, 72, 74, 77, 77, 0,
+    ], GROOVE.hop, "triangle", { hold: 0.45 }),
+    tune("Pop", 120, [CHORD.C, CHORD.F, CHORD.G, CHORD.C], [
+      72, 0, 76, 0, 79, 0, 76, 72,
+      72, 0, 76, 0, 84, 0, 79, 76,
+      77, 0, 81, 0, 84, 0, 81, 77,
+      79, 0, 76, 0, 72, 72, 76, 0,
+    ], GROOVE.sun, "square", { hold: 0.32 }),
+    tune("Glint", 110, [CHORD.E, CHORD.B, CHORD.A, CHORD.E], [
+      80, 83, 80, 76, 75, 76, 80, 83,
+      88, 83, 80, 76, 80, 83, 80, 75,
+      81, 80, 76, 73, 76, 80, 81, 76,
+      80, 76, 75, 73, 76, 80, 80, 0,
+    ], GROOVE.chime, "sine", { shine: 12, pad: 0.06 }),
+    tune("Bounce", 128, [CHORD.G, CHORD.C, CHORD.D, CHORD.G], [
+      79, 83, 79, 74, 76, 79, 83, 79,
+      74, 76, 79, 83, 86, 83, 79, 76,
+      72, 76, 79, 76, 74, 72, 74, 76,
+      79, 76, 74, 71, 67, 71, 74, 79,
+    ], GROOVE.hop, "triangle", { hold: 0.4 }),
+    tune("Spark", 142, [CHORD.D, CHORD.A, CHORD.G, CHORD.D], [
+      81, 78, 74, 78, 81, 86, 81, 78,
+      74, 78, 81, 78, 74, 69, 74, 78,
+      81, 78, 74, 78, 69, 74, 78, 81,
+      78, 74, 73, 69, 74, 74, 78, 0,
+    ], GROOVE.zap, "square", { hold: 0.35 }),
+    tune("Wiggle", 118, [CHORD.Bb, CHORD.Eb, CHORD.F, CHORD.Bb], [
+      70, 74, 77, 74, 70, 74, 77, 82,
+      77, 75, 74, 70, 74, 77, 75, 74,
+      77, 82, 79, 77, 75, 74, 70, 67,
+      70, 74, 77, 74, 70, 70, 74, 0,
+    ], GROOVE.dart, "triangle", { hold: 0.55 }),
+    tune("Candy", 112, [CHORD.A, CHORD.D, CHORD.E, CHORD.A], [
+      69, 73, 76, 81, 76, 73, 69, 73,
+      74, 78, 81, 86, 81, 78, 74, 69,
+      76, 80, 83, 76, 73, 76, 80, 76,
+      73, 76, 81, 76, 73, 71, 69, 69,
+    ], GROOVE.bubble, "sine", { hold: 0.8, pad: 0.05 }),
+    tune("Flip", 126, [CHORD.C, CHORD.G, CHORD.Am, CHORD.Em], [
+      72, 84, 76, 79, 72, 84, 76, 0,
+      67, 79, 72, 76, 67, 79, 72, 67,
+      69, 81, 72, 76, 69, 81, 76, 72,
+      64, 76, 71, 74, 72, 76, 79, 0,
+    ], GROOVE.skip, "triangle", { hold: 0.5 }),
+    tune("Zoom", 136, [CHORD.Fs, CHORD.B, CHORD.E, CHORD.Fs], [
+      78, 82, 78, 85, 82, 78, 73, 78,
+      82, 85, 82, 78, 73, 78, 82, 85,
+      71, 75, 78, 83, 78, 75, 71, 66,
+      78, 82, 85, 82, 78, 78, 82, 0,
+    ], GROOVE.zap, "square", { hold: 0.42 }),
+    tune("Honey", 108, [CHORD.F, CHORD.Dm, CHORD.Bb, CHORD.C], [
+      77, 74, 72, 69, 72, 74, 77, 81,
+      77, 74, 69, 65, 69, 72, 74, 77,
+      70, 74, 77, 82, 79, 77, 74, 70,
+      72, 76, 79, 76, 72, 69, 72, 0,
+    ], GROOVE.pump, "triangle", { pad: 0.06 }),
+    tune("Blink", 130, [CHORD.G, CHORD.D, CHORD.C, CHORD.G], [
+      79, 0, 83, 0, 86, 0, 83, 79,
+      74, 0, 78, 0, 81, 0, 78, 74,
+      72, 0, 76, 0, 79, 0, 84, 79,
+      71, 0, 74, 0, 79, 79, 83, 0,
+    ], GROOVE.bubble, "triangle", { hold: 0.28 }),
+    tune("Joy", 116, [CHORD.Eb, CHORD.Bb, CHORD.Ab, CHORD.Eb], [
+      75, 79, 82, 79, 75, 70, 75, 79,
+      82, 87, 82, 79, 75, 79, 82, 75,
+      80, 75, 72, 68, 72, 75, 80, 75,
+      75, 72, 70, 68, 70, 75, 75, 0,
+    ], GROOVE.chime, "triangle", { shine: 12, pad: 0.065 }),
+    tune("Pep", 134, [CHORD.D, CHORD.Bm, CHORD.G, CHORD.A], [
+      78, 81, 83, 81, 78, 74, 78, 81,
+      71, 74, 78, 83, 78, 74, 71, 66,
+      79, 83, 81, 79, 74, 79, 83, 79,
+      81, 78, 76, 73, 74, 78, 81, 0,
+    ], GROOVE.dart, "square", { hold: 0.46 }),
+    tune("Sunny", 118, [CHORD.C, CHORD.F, CHORD.Am, CHORD.G], [
+      64, 67, 72, 76, 79, 76, 72, 67,
+      65, 69, 72, 77, 81, 77, 72, 69,
+      64, 69, 72, 76, 81, 76, 72, 69,
+      67, 71, 74, 79, 74, 71, 67, 72,
+    ], GROOVE.pump, "triangle", { pad: 0.055 }),
+    tune("Tick", 126, [CHORD.Am, CHORD.F, CHORD.C, CHORD.G], [
+      69, 72, 76, 72, 69, 72, 76, 81,
+      69, 72, 76, 72, 69, 65, 69, 72,
+      65, 69, 72, 77, 72, 69, 65, 60,
+      67, 71, 74, 79, 74, 71, 67, 64,
+    ], GROOVE.zap, "sine", { hold: 0.33 }),
+    tune("Jump", 122, [CHORD.G, CHORD.C, CHORD.Em, CHORD.D], [
+      67, 79, 74, 79, 67, 79, 83, 79,
+      60, 72, 67, 72, 60, 72, 76, 72,
+      64, 76, 71, 76, 64, 76, 79, 76,
+      62, 74, 69, 74, 71, 74, 79, 0,
+    ], GROOVE.hop, "triangle", { hold: 0.44 }),
+    tune("Glow", 112, [CHORD.Bb, CHORD.Gm, CHORD.Eb, CHORD.F], [
+      70, 74, 77, 82, 77, 74, 79, 77,
+      67, 70, 74, 79, 74, 70, 67, 62,
+      63, 67, 70, 75, 70, 67, 63, 58,
+      65, 69, 72, 77, 72, 69, 65, 70,
+    ], GROOVE.chime, "sine", { shine: 12, pad: 0.07 }),
+    tune("Chirp", 140, [CHORD.E, CHORD.A, CHORD.Fsm, CHORD.B], [
+      76, 80, 83, 80, 76, 80, 83, 88,
+      81, 76, 73, 76, 81, 85, 81, 76,
+      78, 73, 66, 73, 78, 82, 78, 73,
+      71, 75, 78, 83, 78, 75, 71, 76,
+    ], GROOVE.bubble, "triangle", { hold: 0.36, shine: 12 }),
+    tune("Rally", 120, [CHORD.F, CHORD.Bb, CHORD.C, CHORD.F], [
+      77, 77, 82, 77, 74, 77, 70, 74,
+      70, 70, 74, 77, 82, 77, 74, 70,
+      72, 72, 79, 76, 72, 76, 79, 84,
+      77, 74, 72, 70, 72, 77, 77, 0,
+    ], GROOVE.skip, "square", { hold: 0.52 }),
+    tune("Zip", 144, [CHORD.A, CHORD.E, CHORD.Fsm, CHORD.D], [
+      81, 85, 81, 76, 73, 76, 81, 85,
+      76, 80, 83, 80, 76, 71, 76, 80,
+      73, 78, 81, 78, 73, 66, 73, 78,
+      74, 78, 81, 86, 81, 78, 74, 69,
+    ], GROOVE.zap, "triangle", { hold: 0.3 }),
+    { name: "Off", off: true },
+  ];
+
+  function midiHz(n) {
+    return 440 * Math.pow(2, (n - 69) / 12);
+  }
+
+  function makeNoise(seconds) {
+    const rate = audioCtx.sampleRate;
+    const buf = audioCtx.createBuffer(1, Math.floor(rate * seconds), rate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+
+  function renderMusic() {
+    musicEl.innerHTML = "";
+    TRACKS.forEach((track, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "music-pick" + (track.off ? " off" : "") + (i === musicIndex ? " on" : "");
+      btn.textContent = track.name;
+      btn.setAttribute("role", "radio");
+      btn.setAttribute("aria-checked", i === musicIndex ? "true" : "false");
+      btn.addEventListener("click", () => chooseMusic(i));
+      musicEl.appendChild(btn);
+    });
+  }
+
+  function chooseMusic(i) {
+    if (i === musicIndex && audioCtx) return;
+    musicIndex = i;
+    localStorage.setItem("sd-music", String(i));
+    localStorage.setItem("sd-music-name", TRACKS[i].name);
+    renderMusic();
+    const fresh = !audioCtx;
+    ensureAudio();
+    if (!fresh) {
+      cutMusic();
+      if (!TRACKS[i].off) fillMusic();
+    } else if (TRACKS[i].off) {
+      cutMusic();
+    }
+  }
+
+  function startMusic() {
+    const a = audioCtx;
+    if (!a || musicTimer) return;
+    noiseBuf = makeNoise(1);
+    musicComp = a.createDynamicsCompressor();
+    musicComp.threshold.setValueAtTime(-16, a.currentTime);
+    musicComp.knee.setValueAtTime(18, a.currentTime);
+    musicComp.ratio.setValueAtTime(3, a.currentTime);
+    musicComp.attack.setValueAtTime(0.004, a.currentTime);
+    musicComp.release.setValueAtTime(0.24, a.currentTime);
+    musicGain = a.createGain();
+    musicGain.gain.value = 0.0001;
+    musicComp.connect(musicGain).connect(a.destination);
+    musicGain.gain.linearRampToValueAtTime(0.9, a.currentTime + 0.45);
+    musicTime = a.currentTime + 0.05;
+    musicBar = 0;
+    fillMusic();
+    musicTimer = setInterval(fillMusic, 200);
+  }
+
+  function musicNote(freq, time, dur, type, vol, attack) {
+    const a = audioCtx;
+    if (!a || !musicComp || !freq || dur <= 0) return;
+    const o = a.createOscillator();
+    const g = a.createGain();
+    o.type = type || "sine";
+    o.frequency.setValueAtTime(freq, time);
+    const atk = Math.min(attack || 0.02, dur * 0.35);
+    g.gain.setValueAtTime(0.0001, time);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol), time + atk);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    o.connect(g).connect(musicComp);
+    ownNode(o);
+    o.start(time);
+    o.stop(time + dur + 0.04);
+  }
+
+  function ownNode(node) {
+    musicNodes.push(node);
+    node.onended = () => {
+      const at = musicNodes.indexOf(node);
+      if (at >= 0) musicNodes.splice(at, 1);
+    };
+  }
+
+  function cutMusic() {
+    const a = audioCtx;
+    if (!a) return;
+    const nodes = musicNodes.splice(0, musicNodes.length);
+    const t = a.currentTime;
+    for (let i = 0; i < nodes.length; i++) {
+      try {
+        nodes[i].stop(t);
+      } catch (e) {}
+    }
+    musicTime = t + 0.05;
+    musicBar = 0;
+  }
+
+  function musicKick(time, punch) {
+    const a = audioCtx;
+    const o = a.createOscillator();
+    const g = a.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(punch || 156, time);
+    o.frequency.exponentialRampToValueAtTime(46, time + 0.12);
+    g.gain.setValueAtTime(0.62, time);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + 0.22);
+    o.connect(g).connect(musicComp);
+    ownNode(o);
+    o.start(time);
+    o.stop(time + 0.24);
+  }
+
+  function musicNoise(time, dur, vol, type, freq) {
+    const src = audioCtx.createBufferSource();
+    src.buffer = noiseBuf;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = type;
+    filter.frequency.setValueAtTime(freq, time);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    src.connect(filter).connect(g).connect(musicComp);
+    ownNode(src);
+    src.start(time, Math.random() * 0.45);
+    src.stop(time + dur + 0.02);
+  }
+
+  function chordTone(part, deg) {
+    if (deg === 0) return part.bass;
+    if (deg === 1) return part.fifth;
+    if (deg === 2) return part.third;
+    if (deg === 3) return part.bass + 12;
+    return 0;
+  }
+
+  function playHook(note, time, dur, track) {
+    if (!note) return;
+    musicNote(midiHz(note), time, dur, track.wave, track.leadVol, track.hold ? 0.008 : 0.018);
+    if (track.shine) musicNote(midiHz(note + track.shine), time, dur, "sine", track.leadVol * 0.35, 0.012);
+  }
+
+  function scheduleBar(track, bar, time) {
+    const beat = 60 / track.bpm;
+    const eighth = beat / 2;
+    const barLen = beat * 4;
+    const part = track.song[bar % track.song.length];
+    const groove = track.groove;
+    for (let e = 0; e < 8; e++) {
+      const t = time + e * eighth;
+      const deg = groove.bass[e];
+      if (deg >= 0) musicNote(midiHz(chordTone(part, deg)), t, eighth * groove.bassHold, "sine", groove.bassVol, 0.012);
+      if (groove.hat === "8") {
+        musicNoise(t, e % 2 ? 0.07 : 0.03, e % 2 ? 0.045 : 0.028, "highpass", 7400);
+      } else if (groove.hat === "off" && e % 2 === 1) {
+        musicNoise(t, 0.06, 0.04, "highpass", 6800);
+      } else if (groove.hat === "busy") {
+        musicNoise(t, 0.04, e % 2 ? 0.06 : 0.034, "highpass", 8200);
+      }
+      if (groove.kick[e]) musicKick(t, groove.kickHz);
+      if (groove.snare[e]) {
+        musicNoise(t, 0.14, groove.snareVol, "bandpass", groove.snareFreq || 1800);
+        musicNote(188, t, 0.08, "triangle", 0.04, 0.003);
+      }
+    }
+    const pad = track.pad || 0.05;
+    for (let c = 0; c < part.chord.length; c++) {
+      musicNote(midiHz(part.chord[c]), time, barLen * 1.12, "sine", pad, 0.09);
+      musicNote(midiHz(part.chord[c] + 12), time, barLen * 1.12, "triangle", pad * 0.45, 0.07);
+    }
+    const leadAt = (bar % track.song.length) * 8;
+    if (track.hold) {
+      for (let e = 0; e < 8; e++) {
+        playHook(track.lead[leadAt + e], time + e * eighth, eighth * track.hold, track);
+      }
+    } else {
+      let e = 0;
+      while (e < 8) {
+        const note = track.lead[leadAt + e];
+        let len = 1;
+        while (e + len < 8 && track.lead[leadAt + e + len] === note) len++;
+        playHook(note, time + e * eighth, eighth * len * 0.98, track);
+        e += len;
+      }
+    }
+  }
+
+  function fillMusic() {
+    const a = audioCtx;
+    const track = TRACKS[musicIndex];
+    if (!a || !musicComp || !track || track.off || a.state !== "running") return;
+    const now = a.currentTime;
+    if (musicTime < now + 0.03) musicTime = now + 0.05;
+    const horizon = now + 2.6;
+    const barLen = (60 / track.bpm) * 4;
+    let guard = 0;
+    while (musicTime < horizon && guard < 8) {
+      scheduleBar(track, musicBar, musicTime);
+      musicTime += barLen;
+      musicBar = (musicBar + 1) % track.song.length;
+      guard++;
+    }
+  }
+
+  {
+    const savedName = localStorage.getItem("sd-music-name");
+    let idx = savedName ? TRACKS.findIndex((t) => t.name === savedName) : -1;
+    if (idx < 0) {
+      const savedMusic = Number(localStorage.getItem("sd-music"));
+      if (savedMusic === 0) idx = 0;
+      else if (savedMusic === 4) idx = TRACKS.findIndex((t) => t.off);
+    }
+    if (idx >= 0) musicIndex = idx;
+  }
+  renderMusic();
 
   function drawArena() {
     const m = currentMap();
@@ -4274,6 +4907,7 @@
     }
   });
   window.addEventListener("pointerdown", (e) => {
+    ensureAudio();
     if (e.target.closest("button, input, #board, #highscores, #feed, #tv-live, #board-resize")) return;
     mouse.x = e.clientX;
     mouse.y = e.clientY;
@@ -4311,6 +4945,7 @@
     setBoostHum(false);
   });
   window.addEventListener("keydown", (e) => {
+    ensureAudio();
     keys.add(e.key.toLowerCase());
     if (e.code) keys.add(e.code.toLowerCase());
     if (e.code === "Space") e.preventDefault();

@@ -1273,6 +1273,53 @@ body.watching #rankline {
   }
 }
 
+.music-dock {
+  margin-top: auto;
+  padding-top: 1.35rem;
+  width: min(22rem, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.music-picks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem 0.45rem;
+  width: 100%;
+}
+
+.music-pick {
+  animation: none;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  font-family: "Titan One", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1;
+  width: 100%;
+  padding: 0.42rem 0.15rem 0.46rem;
+  border-radius: 999px;
+  color: var(--foam);
+  background: rgba(6, 36, 42, 0.55);
+  border: 2px solid rgba(255, 246, 220, 0.4);
+  box-shadow: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.music-pick.off {
+  grid-column: 1 / -1;
+}
+
+.music-pick.on {
+  color: #7a220c;
+  background: linear-gradient(180deg, #ffe27a 0%, var(--gold) 46%, #f0a018 100%);
+  border-color: #fff6dc;
+  box-shadow: 0 0.08em 0 #c44a28;
+}
+
 .skins {
   display: flex;
   flex-wrap: wrap;

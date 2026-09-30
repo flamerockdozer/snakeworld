@@ -22,7 +22,10 @@
   const startForm = document.getElementById("start-form");
   const skinsEl = document.getElementById("skins");
   const skins2El = document.getElementById("skins2");
-  const patternsEl = document.getElementById("patterns");
+  const skins3El = document.getElementById("skins3");
+  const skins4El = document.getElementById("skins4");
+  const bandLengthEl = document.getElementById("band-length");
+  const bandLengthValueEl = document.getElementById("band-length-value");
   const againBtn = document.getElementById("again");
   const mapTypesEl = document.getElementById("map-types");
   const mapOutlinesEl = document.getElementById("map-outlines");
@@ -30,8 +33,27 @@
   const mapTraditionalBtn = document.getElementById("map-traditional");
   const mapOpacityEl = document.getElementById("map-opacity");
   const mapOpacityValueEl = document.getElementById("map-opacity-value");
+  const mapPreviewEl = document.getElementById("map-preview");
   const growRateEl = document.getElementById("grow-rate");
   const growRateValueEl = document.getElementById("grow-rate-value");
+  const sawCountEl = document.getElementById("saw-count");
+  const sawCountValueEl = document.getElementById("saw-count-value");
+  const foodAmountEl = document.getElementById("food-amount");
+  const foodAmountValueEl = document.getElementById("food-amount-value");
+  const turnRateEl = document.getElementById("turn-rate");
+  const turnRateValueEl = document.getElementById("turn-rate-value");
+  const moveRateEl = document.getElementById("move-rate");
+  const moveRateValueEl = document.getElementById("move-rate-value");
+  const goldCountEl = document.getElementById("gold-count");
+  const goldCountValueEl = document.getElementById("gold-count-value");
+  const startLengthEl = document.getElementById("start-length");
+  const startLengthValueEl = document.getElementById("start-length-value");
+  const boostRateEl = document.getElementById("boost-rate");
+  const boostRateValueEl = document.getElementById("boost-rate-value");
+  const burnRateEl = document.getElementById("burn-rate");
+  const burnRateValueEl = document.getElementById("burn-rate-value");
+  const sawReachEl = document.getElementById("saw-reach");
+  const sawReachValueEl = document.getElementById("saw-reach-value");
   const musicEl = document.getElementById("music");
   const musicVolumeEl = document.getElementById("music-volume");
   const musicVolumeValueEl = document.getElementById("music-volume-value");
@@ -43,6 +65,9 @@
   const howOpenBtn = document.getElementById("how-open");
   const howEl = document.getElementById("how");
   const howCloseBtn = document.getElementById("how-close");
+  const optionsEl = document.getElementById("options");
+  const optionsOpenBtn = document.getElementById("options-open");
+  const optionsCloseBtn = document.getElementById("options-close");
   const hintEl = document.getElementById("hint");
   const tvHintEl = document.getElementById("tv-hint");
   const tvLiveEl = document.getElementById("tv-live");
@@ -65,9 +90,9 @@
   const RUNNER_VALUE = 28;
   const FOOD_GROW = 0.24;
   const LENGTH_RATE = 8;
-  const HAZARD_COUNT = 30;
+  const HAZARD_BASE = 30;
   const HAZARD_CHASE_R = 1120;
-  const BOT_COUNT = 48;
+  const BOT_BASE = 48;
   const MIN_MASS = 14;
   const BOOST_COST = 0.5;
   const BOOST_MIN_LENGTH = 25;
@@ -86,6 +111,8 @@
   const DEATH_TAPE_SEC = 0.62;
   const NEWS_TAPE_SEC = 0.85;
   const DEATH_FADE = 0.5;
+  const SPAWN_SAFE = 5;
+  const SPAWN_BLINK = 0.3;
   const TV_DEATH_MIN = 48;
   const TV_DEATH_KEEP = 8;
 
@@ -110,13 +137,6 @@
     { name: "Tangerine", color: "#ff9a3c" },
     { name: "Bubblegum", color: "#ff9ad4" },
     { name: "Graphite", color: "#6b7c86" },
-  ];
-
-  const PATTERNS = [
-    { id: "solid", name: "Solid" },
-    { id: "bands", name: "Bands" },
-    { id: "belly", name: "Belly" },
-    { id: "rings", name: "Rings" },
   ];
 
   const OUTLINES = [
@@ -310,12 +330,24 @@
   let scores = loadScores();
   let skinIndex = Number(localStorage.getItem("sd-skin") || 0);
   let skin2Index = 4;
-  let patternIndex = 0;
+  let skin3Index = -1;
+  let skin4Index = -1;
+  let bandLen = 4;
   let outlineIndex = 0;
   let fillIndex = 0;
   let mapType = "hex";
   let mapOpacity = 0.55;
   let growRate = 1;
+  const botCount = BOT_BASE;
+  let sawCount = HAZARD_BASE;
+  let foodRate = 1;
+  let turnRate = 1;
+  let moveRate = 1;
+  let goldCount = RUNNER_COUNT;
+  let startDots = 9;
+  let boostRate = 1;
+  let burnRate = 1;
+  let sawReach = 1;
   let time = 0;
   let foodId = 1;
   let foodWave = 0;
@@ -367,13 +399,13 @@
   }
   {
     const savedSkin2 = localStorage.getItem("sd-skin2");
-    const n = Number(savedSkin2);
-    if (savedSkin2 != null && Number.isInteger(n) && n >= 0 && n < SKINS.length) skin2Index = n;
-  }
-  {
-    const savedPattern = localStorage.getItem("sd-pattern");
-    const found = PATTERNS.findIndex((p) => p.id === savedPattern);
-    if (found >= 0) patternIndex = found;
+    skin2Index = savedSkin2 == null ? 4 : savedSkinIndex("sd-skin2");
+    skin3Index = savedSkinIndex("sd-skin3");
+    skin4Index = savedSkinIndex("sd-skin4");
+    const savedBand = Number(localStorage.getItem("sd-band"));
+    if (Number.isInteger(savedBand)) bandLen = clamp(savedBand, 1, 16);
+    bandLengthEl.value = String(bandLen);
+    bandLengthValueEl.textContent = String(bandLen);
   }
   {
     const legacy = Number(localStorage.getItem("sd-map") || 0);
@@ -396,6 +428,42 @@
     if (Number.isFinite(savedGrow)) growRate = clamp(savedGrow, 0.2, 3);
     growRateEl.value = String(Math.round(growRate * 100));
     growRateValueEl.textContent = growRate.toFixed(1) + "x";
+    const savedSaws = Number(localStorage.getItem("sd-saws"));
+    if (Number.isFinite(savedSaws)) sawCount = clamp(Math.round(savedSaws), 0, 60);
+    sawCountEl.value = String(sawCount);
+    sawCountValueEl.textContent = String(sawCount);
+    const savedFood = Number(localStorage.getItem("sd-food"));
+    if (Number.isFinite(savedFood)) foodRate = clamp(savedFood, 0.4, 2);
+    foodAmountEl.value = String(Math.round(foodRate * 100));
+    foodAmountValueEl.textContent = foodRate.toFixed(1) + "x";
+    const savedTurn = Number(localStorage.getItem("sd-turn"));
+    if (Number.isFinite(savedTurn)) turnRate = clamp(savedTurn, 0.4, 2);
+    turnRateEl.value = String(Math.round(turnRate * 100));
+    turnRateValueEl.textContent = turnRate.toFixed(1) + "x";
+    const savedMove = Number(localStorage.getItem("sd-speed"));
+    if (Number.isFinite(savedMove)) moveRate = clamp(savedMove, 0.5, 2);
+    moveRateEl.value = String(Math.round(moveRate * 100));
+    moveRateValueEl.textContent = moveRate.toFixed(1) + "x";
+    const savedGold = Number(localStorage.getItem("sd-gold"));
+    if (Number.isFinite(savedGold)) goldCount = clamp(Math.round(savedGold), 0, 90);
+    goldCountEl.value = String(goldCount);
+    goldCountValueEl.textContent = String(goldCount);
+    const savedStart = Number(localStorage.getItem("sd-start"));
+    if (Number.isFinite(savedStart)) startDots = clamp(Math.round(savedStart), 5, 48);
+    startLengthEl.value = String(startDots);
+    startLengthValueEl.textContent = String(startDots);
+    const savedBoost = Number(localStorage.getItem("sd-boost"));
+    if (Number.isFinite(savedBoost)) boostRate = clamp(savedBoost, 0.4, 2.5);
+    boostRateEl.value = String(Math.round(boostRate * 100));
+    boostRateValueEl.textContent = boostRate.toFixed(1) + "x";
+    const savedBurn = Number(localStorage.getItem("sd-burn"));
+    if (Number.isFinite(savedBurn)) burnRate = clamp(savedBurn, 0.2, 2.5);
+    burnRateEl.value = String(Math.round(burnRate * 100));
+    burnRateValueEl.textContent = burnRate.toFixed(1) + "x";
+    const savedReach = Number(localStorage.getItem("sd-reach"));
+    if (Number.isFinite(savedReach)) sawReach = clamp(savedReach, 0.4, 2.2);
+    sawReachEl.value = String(Math.round(sawReach * 100));
+    sawReachValueEl.textContent = sawReach.toFixed(1) + "x";
     const savedVol = Number(localStorage.getItem("sd-music-vol"));
     if (Number.isFinite(savedVol)) musicVol = clamp(savedVol, 0, 1);
     musicVolumeEl.value = String(Math.round(musicVol * 100));
@@ -407,7 +475,8 @@
   renderScores();
   renderSkins();
   renderSkin2();
-  renderPatterns();
+  renderSkin3();
+  renderSkin4();
   renderMapMaker();
   seedReefs();
   seedBubbles();
@@ -625,6 +694,48 @@
       });
       mapFillsEl.appendChild(btn);
     });
+    drawMapPreview();
+  }
+
+  function drawMapPreview() {
+    const size = 240;
+    const g = mapPreviewEl.getContext("2d");
+    const m = currentMap();
+    mapPreviewEl.width = size;
+    mapPreviewEl.height = size;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, size, size);
+    const bg = g.createRadialGradient(size * 0.5, size * 0.34, size * 0.05, size * 0.5, size * 0.55, size * 0.72);
+    bg.addColorStop(0, m.bg[0]);
+    bg.addColorStop(0.42, m.bg[1]);
+    bg.addColorStop(1, m.bg[2]);
+    g.fillStyle = bg;
+    g.beginPath();
+    g.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+    g.fill();
+
+    const span = 420;
+    const hole = size * 0.43;
+    g.save();
+    g.beginPath();
+    g.arc(size / 2, size / 2, hole, 0, Math.PI * 2);
+    g.clip();
+    g.translate(size / 2, size / 2);
+    g.scale(hole / span, hole / span);
+    g.globalAlpha = mapOpacity;
+    drawFloor(g, { minX: -span, maxX: span, minY: -span, maxY: span });
+    g.restore();
+
+    g.beginPath();
+    g.arc(size / 2, size / 2, hole, 0, Math.PI * 2);
+    g.strokeStyle = m.rim1;
+    g.lineWidth = 8;
+    g.stroke();
+    g.beginPath();
+    g.arc(size / 2, size / 2, hole + 7, 0, Math.PI * 2);
+    g.strokeStyle = m.rim2;
+    g.lineWidth = 5;
+    g.stroke();
   }
 
   growRateEl.addEventListener("input", () => {
@@ -633,10 +744,66 @@
     localStorage.setItem("sd-grow", String(growRate));
   });
 
+  sawCountEl.addEventListener("input", () => {
+    sawCount = clamp(Math.round(Number(sawCountEl.value)), 0, 60);
+    sawCountValueEl.textContent = String(sawCount);
+    localStorage.setItem("sd-saws", String(sawCount));
+    syncSaws();
+  });
+
+  foodAmountEl.addEventListener("input", () => {
+    foodRate = clamp(Number(foodAmountEl.value) / 100, 0.4, 2);
+    foodAmountValueEl.textContent = foodRate.toFixed(1) + "x";
+    localStorage.setItem("sd-food", String(foodRate));
+  });
+
+  turnRateEl.addEventListener("input", () => {
+    turnRate = clamp(Number(turnRateEl.value) / 100, 0.4, 2);
+    turnRateValueEl.textContent = turnRate.toFixed(1) + "x";
+    localStorage.setItem("sd-turn", String(turnRate));
+  });
+
+  moveRateEl.addEventListener("input", () => {
+    moveRate = clamp(Number(moveRateEl.value) / 100, 0.5, 2);
+    moveRateValueEl.textContent = moveRate.toFixed(1) + "x";
+    localStorage.setItem("sd-speed", String(moveRate));
+  });
+
+  goldCountEl.addEventListener("input", () => {
+    goldCount = clamp(Math.round(Number(goldCountEl.value)), 0, 90);
+    goldCountValueEl.textContent = String(goldCount);
+    localStorage.setItem("sd-gold", String(goldCount));
+  });
+
+  startLengthEl.addEventListener("input", () => {
+    startDots = clamp(Math.round(Number(startLengthEl.value)), 5, 48);
+    startLengthValueEl.textContent = String(startDots);
+    localStorage.setItem("sd-start", String(startDots));
+  });
+
+  boostRateEl.addEventListener("input", () => {
+    boostRate = clamp(Number(boostRateEl.value) / 100, 0.4, 2.5);
+    boostRateValueEl.textContent = boostRate.toFixed(1) + "x";
+    localStorage.setItem("sd-boost", String(boostRate));
+  });
+
+  burnRateEl.addEventListener("input", () => {
+    burnRate = clamp(Number(burnRateEl.value) / 100, 0.2, 2.5);
+    burnRateValueEl.textContent = burnRate.toFixed(1) + "x";
+    localStorage.setItem("sd-burn", String(burnRate));
+  });
+
+  sawReachEl.addEventListener("input", () => {
+    sawReach = clamp(Number(sawReachEl.value) / 100, 0.4, 2.2);
+    sawReachValueEl.textContent = sawReach.toFixed(1) + "x";
+    localStorage.setItem("sd-reach", String(sawReach));
+  });
+
   mapOpacityEl.addEventListener("input", () => {
     mapOpacity = clamp(Number(mapOpacityEl.value) / 100, 0.1, 1);
     mapOpacityValueEl.textContent = Math.round(mapOpacity * 100) + "%";
     localStorage.setItem("sd-opacity", String(mapOpacity));
+    drawMapPreview();
   });
 
   musicVolumeEl.addEventListener("input", () => {
@@ -644,6 +811,12 @@
     musicVolumeValueEl.textContent = Math.round(musicVol * 100) + "%";
     localStorage.setItem("sd-music-vol", String(musicVol));
     applyMusicVol();
+  });
+
+  bandLengthEl.addEventListener("input", () => {
+    bandLen = clamp(Math.round(Number(bandLengthEl.value)), 1, 16);
+    bandLengthValueEl.textContent = String(bandLen);
+    localStorage.setItem("sd-band", String(bandLen));
   });
 
   mapTraditionalBtn.addEventListener("click", () => {
@@ -654,56 +827,66 @@
     renderMapMaker();
   });
 
-  function renderSkins() {
-    skinsEl.innerHTML = "";
+  function savedSkinIndex(key) {
+    const raw = localStorage.getItem(key);
+    if (raw == null || raw === "" || raw === "-1") return -1;
+    const n = Number(raw);
+    if (Number.isInteger(n) && n >= 0 && n < SKINS.length) return n;
+    return -1;
+  }
+
+  function renderColorRow(el, selected, allowOff, onPick) {
+    el.innerHTML = "";
+    if (allowOff) {
+      const off = document.createElement("button");
+      off.type = "button";
+      off.className = "skin skin-off" + (selected < 0 ? " on" : "");
+      off.textContent = "Off";
+      off.setAttribute("aria-label", "Off");
+      off.addEventListener("click", () => onPick(-1));
+      el.appendChild(off);
+    }
     SKINS.forEach((skin, i) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "skin" + (i === skinIndex ? " on" : "");
+      btn.className = "skin" + (i === selected ? " on" : "");
       btn.style.background = skin.color;
       btn.title = skin.name;
       btn.setAttribute("aria-label", skin.name);
-      btn.addEventListener("click", () => {
-        skinIndex = i;
-        localStorage.setItem("sd-skin", String(i));
-        renderSkins();
-      });
-      skinsEl.appendChild(btn);
+      btn.addEventListener("click", () => onPick(i));
+      el.appendChild(btn);
+    });
+  }
+
+  function renderSkins() {
+    renderColorRow(skinsEl, skinIndex, false, (i) => {
+      skinIndex = i;
+      localStorage.setItem("sd-skin", String(i));
+      renderSkins();
     });
   }
 
   function renderSkin2() {
-    skins2El.innerHTML = "";
-    SKINS.forEach((skin, i) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "skin" + (i === skin2Index ? " on" : "");
-      btn.style.background = skin.color;
-      btn.title = skin.name;
-      btn.setAttribute("aria-label", skin.name);
-      btn.addEventListener("click", () => {
-        skin2Index = i;
-        localStorage.setItem("sd-skin2", String(i));
-        renderSkin2();
-      });
-      skins2El.appendChild(btn);
+    renderColorRow(skins2El, skin2Index, true, (i) => {
+      skin2Index = i;
+      localStorage.setItem("sd-skin2", String(i));
+      renderSkin2();
     });
   }
 
-  function renderPatterns() {
-    patternsEl.innerHTML = "";
-    PATTERNS.forEach((pattern, i) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "pattern" + (i === patternIndex ? " on" : "");
-      btn.textContent = pattern.name;
-      btn.setAttribute("aria-label", pattern.name);
-      btn.addEventListener("click", () => {
-        patternIndex = i;
-        localStorage.setItem("sd-pattern", pattern.id);
-        renderPatterns();
-      });
-      patternsEl.appendChild(btn);
+  function renderSkin3() {
+    renderColorRow(skins3El, skin3Index, true, (i) => {
+      skin3Index = i;
+      localStorage.setItem("sd-skin3", String(i));
+      renderSkin3();
+    });
+  }
+
+  function renderSkin4() {
+    renderColorRow(skins4El, skin4Index, true, (i) => {
+      skin4Index = i;
+      localStorage.setItem("sd-skin4", String(i));
+      renderSkin4();
     });
   }
 
@@ -1014,9 +1197,8 @@
     const p = opts.pos || randomInDisk(900);
     const skin = opts.skin || pick(SKINS);
     const color = skin.color || skin[0] || skin;
-    const pattern = opts.pattern || pick(PATTERNS).id;
-    const skin2 = opts.skin2 || pick(SKINS);
-    const c2 = skin2.color || color;
+    const colors = opts.player ? chosenColors() : randomColors(color);
+    const band = opts.player ? bandLen : 2 + ((Math.random() * 7) | 0);
     const angle = Math.random() * Math.PI * 2;
     const mass = opts.mass || rand(16, 38);
     const dots = opts.dots || SNAKE_DOTS;
@@ -1033,6 +1215,8 @@
       }
       trail.push({ x, y, d: walked });
     }
+    const headD = trail.length ? trail[trail.length - 1].d : 0;
+    for (let i = 0; i < points.length; i++) points[i].d = headD - i * SPACING;
     const roll = Math.random();
     return {
       x: p.x,
@@ -1046,12 +1230,14 @@
       startDots: dots,
       points,
       trail,
-      c1: color,
-      c2,
-      pattern,
+      c1: colors[0],
+      c2: colors[1] || colors[0],
+      colors,
+      band,
       name: opts.name || "Snake",
       uid: snakeUid++,
       player: !!opts.player,
+      safe: opts.player ? SPAWN_SAFE : 0,
       alive: true,
       boosting: false,
       thrust: 0,
@@ -1122,20 +1308,18 @@
     }
     menuIds = "";
     scatterFood(FOOD_TARGET);
-    scatterRunners(RUNNER_COUNT);
+    scatterRunners(goldCount);
     seedHazards();
-    for (let i = 0; i < BOT_COUNT; i++) snakes.push(spawnBot(i < 5));
+    for (let i = 0; i < botCount; i++) snakes.push(spawnBot(i < 5));
     player = null;
     if (!attract) {
       player = makeSnake({
         pos: clearPos(1600, 70),
-        mass: 12.5,
-        dots: 9,
+        mass: startDots * (12.5 / 9),
+        dots: startDots,
         name: (nameInput.value.trim() || "You").slice(0, 16),
         player: true,
         skin: SKINS[skinIndex],
-        skin2: SKINS[skin2Index],
-        pattern: PATTERNS[patternIndex].id,
       });
       snakes.push(player);
       cam.x = player.x;
@@ -1211,9 +1395,14 @@
     };
   }
 
+  function syncSaws() {
+    while (hazards.length > sawCount) hazards.pop();
+    while (hazards.length < sawCount) hazards.push(makeHazard());
+  }
+
   function seedHazards() {
     hazards.length = 0;
-    for (let i = 0; i < HAZARD_COUNT; i++) {
+    for (let i = 0; i < sawCount; i++) {
       const h = makeHazard();
       for (let n = 0; n < 48; n++) {
         const p = randomInDisk(620);
@@ -1238,12 +1427,13 @@
 
   function hazardPrey(h) {
     let best = null;
-    let bestD = HAZARD_CHASE_R * HAZARD_CHASE_R;
+    const chase = HAZARD_CHASE_R * sawReach;
+    let bestD = chase * chase;
     for (let i = 0; i < snakes.length; i++) {
       const s = snakes[i];
       if (!s.alive) continue;
       const rush = sizeRush(s);
-      const reach = HAZARD_CHASE_R * rush;
+      const reach = chase * rush;
       const d2 = dist2(h.x, h.y, s.x, s.y);
       if (d2 < reach * reach && d2 / rush < bestD) {
         bestD = d2 / rush;
@@ -1289,7 +1479,7 @@
     const extra = Math.max(0, (s.points ? s.points.length : SNAKE_DOTS) - SNAKE_DOTS);
     const t = extra / 420;
     const size = 1 / (1 + t * t * 2.6);
-    const max = TURN * dt * (1 - 0.18 * (s.thrust || 0)) * clamp(size, 0.16, 1);
+    const max = TURN * turnRate * dt * (1 - 0.18 * (s.thrust || 0)) * clamp(size, 0.16, 1);
     s.angle += clamp(delta, -max, max);
   }
 
@@ -1331,7 +1521,7 @@
     const need = Math.max(s.player ? 4 : 8, startDots + Math.floor(gained * LENGTH_RATE));
     while (s.points.length < need) {
       const last = s.points[s.points.length - 1];
-      s.points.push({ x: last.x, y: last.y });
+      s.points.push({ x: last.x, y: last.y, d: last.d });
     }
     if (s.points.length > need) s.points.length = need;
     if (s.player) checkLength(s);
@@ -1494,7 +1684,7 @@
   function moveSnake(s, dt) {
     s.prevX = s.x;
     s.prevY = s.y;
-    const speed = BASE_SPEED + (BOOST_SPEED - BASE_SPEED) * (s.thrust || 0);
+    const speed = BASE_SPEED * moveRate + (BOOST_SPEED - BASE_SPEED) * moveRate * boostRate * (s.thrust || 0);
     s.x += Math.cos(s.angle) * speed * dt;
     s.y += Math.sin(s.angle) * speed * dt;
     wrapSnake(s);
@@ -1539,8 +1729,16 @@
     return { frames, victim: victim.uid };
   }
 
+  function spawnSafe(s) {
+    return !!(s && s.player && s.safe > 0);
+  }
+
+  function safeBlinkOff(s) {
+    return spawnSafe(s) && Math.floor(s.safe / SPAWN_BLINK) % 2 === 1;
+  }
+
   function kill(s, by, cause) {
-    if (!s.alive) return;
+    if (!s.alive || spawnSafe(s) || spawnSafe(by)) return;
     s.alive = false;
     s.fade = DEATH_FADE;
     s.killedBy = by || null;
@@ -1849,7 +2047,7 @@
     bodyHash.clear();
     for (let s = 0; s < snakes.length; s++) {
       const sn = snakes[s];
-      if (!sn.alive) continue;
+      if (!sn.alive || spawnSafe(sn)) continue;
       const pts = sn.points;
       const rad = bodyRadiusAt(sn, 0);
       const step = rad > 14 ? 2 : 1;
@@ -1876,7 +2074,7 @@
   function collideHeads() {
     for (let i = 0; i < snakes.length; i++) {
       const a = snakes[i];
-      if (!a.alive) continue;
+      if (!a.alive || spawnSafe(a)) continue;
       const ra = snakeRadius(a) * 0.92;
       const dx = a.x - a.prevX;
       const dy = a.y - a.prevY;
@@ -1901,13 +2099,25 @@
       if (food[i].runner) runners++;
     }
     food.length = w;
-    if (runners < RUNNER_COUNT) {
-      scatterRunners(RUNNER_COUNT - runners);
-      runners = RUNNER_COUNT;
+    if (runners < goldCount) {
+      scatterRunners(goldCount - runners);
+      runners = goldCount;
+    } else if (runners > goldCount) {
+      let extra = runners - goldCount;
+      let kept = 0;
+      for (let i = 0; i < food.length; i++) {
+        const f = food[i];
+        if (f.runner && extra > 0) {
+          extra--;
+          continue;
+        }
+        food[kept++] = f;
+      }
+      food.length = kept;
     }
     const pellets = food.length - runners;
     const live = state === "play" || state === "tv" || state === "attract";
-    const goal = live ? FOOD_MID : FOOD_TARGET;
+    const goal = Math.round((live ? FOOD_MID : FOOD_TARGET) * foodRate);
     if (pellets < goal) {
       if (!live) scatterFood(goal - pellets);
       else {
@@ -2190,7 +2400,7 @@
     const pts = s.points;
     const points = new Array(pts.length);
     for (let i = 0; i < pts.length; i++) {
-      points[i] = { x: pts[i].x, y: pts[i].y };
+      points[i] = { x: pts[i].x, y: pts[i].y, d: pts[i].d };
     }
     return {
       x: s.x,
@@ -2200,10 +2410,12 @@
       mass: s.mass,
       c1: s.c1,
       c2: s.c2,
-      pattern: s.pattern,
+      colors: s.colors ? s.colors.slice() : [s.c1, s.c2],
+      band: s.band || 4,
       name: s.name,
       uid: s.uid,
       player: s.player,
+      safe: s.safe || 0,
       alive: s.alive,
       boosting: s.boosting,
       thrust: s.thrust || 0,
@@ -2311,7 +2523,11 @@
     for (let i = 0; i < n; i++) {
       const pa = a[Math.min(i, a.length - 1)];
       const pb = b[Math.min(i, b.length - 1)];
-      out[i] = { x: lerp(pa.x, pb.x, t), y: lerp(pa.y, pb.y, t) };
+      out[i] = {
+        x: lerp(pa.x, pb.x, t),
+        y: lerp(pa.y, pb.y, t),
+        d: lerp(pa.d || 0, pb.d || 0, t),
+      };
     }
     return out;
   }
@@ -2325,10 +2541,12 @@
       mass: lerp(a.mass, b.mass, t),
       c1: b.c1,
       c2: b.c2,
-      pattern: b.pattern,
+      colors: b.colors,
+      band: b.band,
       name: b.name,
       uid: b.uid,
       player: b.player,
+      safe: lerp(a.safe || 0, b.safe || 0, t),
       alive: t < 1 ? a.alive : b.alive,
       boosting: t < 0.5 ? a.boosting : b.boosting,
       thrust: lerp(a.thrust || 0, b.thrust || 0, t),
@@ -3005,6 +3223,10 @@
     if (replay) return;
 
     time += dt;
+    if (state === "play" && player && player.safe > 0) {
+      player.safe -= dt;
+      if (player.safe < 0) player.safe = 0;
+    }
     fadeCorpses(dt);
     shake = Math.max(0, shake - dt * 28);
     flash = Math.max(0, flash - dt);
@@ -3028,7 +3250,7 @@
         const floor = s.player ? BOOST_MIN_LENGTH / 10 : MIN_MASS + 1;
         if (s.mass > floor) {
           const spend = Math.max(s.thrust, 0.08);
-          s.mass -= BOOST_COST * (s.player ? 1.75 : 0.52) * spend * dt;
+          s.mass -= BOOST_COST * burnRate * (s.player ? 1.75 : 0.52) * spend * dt;
           dropBoostFood(s, dt);
         }
         if (s.player && particles.length < 320 && Math.random() < 18 * s.thrust * dt) {
@@ -3075,12 +3297,12 @@
     if (state !== "dead") {
       botSpawnT += dt;
       const liveBots = snakes.filter((s) => s.alive && !s.player).length;
-      if (liveBots < BOT_COUNT && botSpawnT > 0.95) {
+      if (liveBots < botCount && botSpawnT > 0.95) {
         botSpawnT = 0;
         snakes.push(spawnBot(Math.random() < 0.08));
       }
-      if (snakes.length > BOT_COUNT + 30) {
-        for (let i = snakes.length - 1; i >= 0 && snakes.length > BOT_COUNT + 8; i--) {
+      if (snakes.length > botCount + 30) {
+        for (let i = snakes.length - 1; i >= 0 && snakes.length > botCount + 8; i--) {
           if (!snakes[i].alive && !snakes[i].player && !(snakes[i].fade > 0)) snakes.splice(i, 1);
         }
       }
@@ -3725,22 +3947,30 @@
       75, 80, 71, 76, 66, 71, 78, 73,
       72, 77, 84, 79, 74, 70, 77, 0,
     ], GROOVE.sun, "triangle", { hold: 0.65, shine: 12 }),
+    tune("Hook", 118, [CHORD.C, CHORD.Am, CHORD.F, CHORD.G], [
+      64, 67, 64, 60, 64, 67, 64, 0,
+      60, 64, 60, 57, 60, 64, 60, 0,
+      69, 72, 69, 65, 69, 72, 69, 0,
+      71, 74, 71, 67, 71, 67, 67, 0,
+    ], GROOVE.sun, "triangle", { pad: 0.06 }),
+    tune("Buns", 104, [CHORD.C, CHORD.G, CHORD.Am, CHORD.F], [
+      64, 62, 60, 0, 64, 62, 60, 0,
+      67, 67, 67, 67, 71, 69, 67, 0,
+      60, 60, 60, 60, 64, 64, 64, 0,
+      65, 64, 62, 60, 60, 0, 0, 0,
+    ], GROOVE.chime, "triangle", { pad: 0.065 }),
+    tune("Boat", 112, [CHORD.C, CHORD.G, CHORD.F, CHORD.C], [
+      60, 60, 60, 62, 64, 64, 64, 0,
+      64, 62, 64, 65, 67, 67, 67, 0,
+      69, 69, 69, 72, 72, 69, 69, 65,
+      67, 65, 64, 62, 60, 60, 60, 0,
+    ], GROOVE.bubble, "triangle", { pad: 0.06 }),
     { name: "Off", off: true },
   ];
 
-  function liftLead(lead, shift) {
+  function shiftPhrase(lead, shift) {
     const out = new Array(lead.length);
-    for (let i = 0; i < lead.length; i++) {
-      const n = lead[i];
-      if (!n) {
-        out[i] = 0;
-        continue;
-      }
-      let v = n + shift;
-      while (v > 88) v -= 12;
-      while (v < 58) v += 12;
-      out[i] = v;
-    }
+    for (let i = 0; i < lead.length; i++) out[i] = lead[i] ? lead[i] + shift : 0;
     return out;
   }
 
@@ -3749,9 +3979,10 @@
     if (track.off || !track.song || !track.lead) continue;
     const song = track.song;
     const lead = track.lead;
-    const spun = song.slice(1).concat(song[0]);
-    track.song = song.concat(spun, song);
-    track.lead = lead.concat(liftLead(lead, 4), liftLead(lead, -3));
+    const tooHigh = lead.some((n) => n && n + 12 > 93);
+    const answer = tooHigh ? shiftPhrase(lead, -12) : shiftPhrase(lead, 12);
+    track.song = song.concat(song, song);
+    track.lead = lead.concat(answer, lead);
   }
 
   function midiHz(n) {
@@ -3905,10 +4136,14 @@
     return 0;
   }
 
-  function playHook(note, time, dur, track) {
+  function playHook(note, time, dur, track, legato) {
     if (!note) return;
-    musicNote(midiHz(note), time, dur, track.wave, track.leadVol, track.hold ? 0.008 : 0.018);
-    if (track.shine) musicNote(midiHz(note + track.shine), time, dur, "sine", track.leadVol * 0.35, 0.012);
+    const wave = track.wave === "square" ? "triangle" : track.wave;
+    const vol = track.wave === "square" ? Math.max(track.leadVol, 0.09) : track.leadVol;
+    const atk = legato ? 0.045 : 0.016;
+    musicNote(midiHz(note), time, dur, wave, vol, atk);
+    if (note >= 60) musicNote(midiHz(note - 12), time, dur * 0.92, "sine", vol * 0.2, atk);
+    if (track.shine) musicNote(midiHz(note + track.shine), time, dur, "sine", vol * 0.28, 0.02);
   }
 
   function scheduleBar(track, bar, time) {
@@ -3940,19 +4175,23 @@
       musicNote(midiHz(part.chord[c] + 12), time, barLen * 1.12, "triangle", pad * 0.45, 0.07);
     }
     const leadAt = (bar % track.song.length) * 8;
-    if (track.hold) {
-      for (let e = 0; e < 8; e++) {
-        playHook(track.lead[leadAt + e], time + e * eighth, eighth * track.hold, track);
+    let e = 0;
+    while (e < 8) {
+      const note = track.lead[leadAt + e];
+      if (!note) {
+        e++;
+        continue;
       }
-    } else {
-      let e = 0;
-      while (e < 8) {
-        const note = track.lead[leadAt + e];
-        let len = 1;
-        while (e + len < 8 && track.lead[leadAt + e + len] === note) len++;
-        playHook(note, time + e * eighth, eighth * len * 0.98, track);
-        e += len;
-      }
+      let len = 1;
+      while (e + len < 8 && track.lead[leadAt + e + len] === note) len++;
+      const next = e + len < 8 ? track.lead[leadAt + e + len] : 0;
+      const prev = e > 0 ? track.lead[leadAt + e - 1] : 0;
+      const into = next && Math.abs(next - note) <= 2;
+      const from = prev && Math.abs(note - prev) <= 2;
+      const base = track.hold || 0.94;
+      const portion = into ? Math.max(base, 1.04) : Math.max(base, 0.74);
+      playHook(note, time + e * eighth, eighth * len * portion, track, from);
+      e += len;
     }
   }
 
@@ -4096,16 +4335,17 @@
     path.closePath();
   }
 
-  function drawFloor() {
+  function drawFloor(g, view) {
+    g = g || ctx;
+    view = view || floorView();
     const m = currentMap();
-    const view = floorView();
     const tones = [m.arena, m.arena, m.bg[1], m.arena, m.bg[0], m.bg[1], m.arena];
     const fills = new Map();
     const outline = new Path2D();
 
     if (mapType === "star" || mapType === "paver") {
-      ctx.fillStyle = m.arena;
-      ctx.fillRect(view.minX - 80, view.minY - 80, view.maxX - view.minX + 160, view.maxY - view.minY + 160);
+      g.fillStyle = m.arena;
+      g.fillRect(view.minX - 80, view.minY - 80, view.maxX - view.minX + 160, view.maxY - view.minY + 160);
     }
 
     const floors = {
@@ -4129,21 +4369,21 @@
     (floors[mapType] || addHexTiles)(fills, outline, tones, view);
 
     for (const [color, path] of fills) {
-      ctx.fillStyle = color;
-      ctx.fill(path);
+      g.fillStyle = color;
+      g.fill(path);
     }
-    ctx.strokeStyle = m.rim1;
-    ctx.lineWidth = 8;
-    ctx.lineJoin = "miter";
-    ctx.stroke(outline);
+    g.strokeStyle = m.rim1;
+    g.lineWidth = 8;
+    g.lineJoin = "miter";
+    g.stroke(outline);
 
-    ctx.beginPath();
-    ctx.arc(0, 0, WORLD_R, 0, Math.PI * 2);
-    const edge = ctx.createRadialGradient(0, 0, WORLD_R * 0.82, 0, 0, WORLD_R);
+    g.beginPath();
+    g.arc(0, 0, WORLD_R, 0, Math.PI * 2);
+    const edge = g.createRadialGradient(0, 0, WORLD_R * 0.82, 0, 0, WORLD_R);
     edge.addColorStop(0, "rgba(255, 70, 50, 0)");
     edge.addColorStop(1, m.edge);
-    ctx.fillStyle = edge;
-    ctx.fill();
+    g.fillStyle = edge;
+    g.fill();
   }
 
   function addHexTiles(fills, outline, tones, view) {
@@ -4789,15 +5029,31 @@
     }
   }
 
+  function chosenColors() {
+    const colors = [SKINS[skinIndex].color];
+    if (skin2Index >= 0) colors.push(SKINS[skin2Index].color);
+    if (skin3Index >= 0) colors.push(SKINS[skin3Index].color);
+    if (skin4Index >= 0) colors.push(SKINS[skin4Index].color);
+    return colors;
+  }
+
+  function randomColors(color) {
+    const colors = [color];
+    const extra = (Math.random() * 4) | 0;
+    for (let k = 0; k < extra; k++) colors.push(pick(SKINS).color);
+    return colors;
+  }
+
   function segmentTone(s, i) {
-    if (s.pattern === "bands" && i % 8 < 4) return s.c2;
-    if (s.pattern === "rings" && i % 6 === 0) return s.c2;
-    return s.c1;
+    const colors = s.colors && s.colors.length ? s.colors : [s.c1];
+    if (colors.length < 2) return colors[0];
+    const len = Math.max(1, s.band || 4);
+    return colors[Math.floor(i / len) % colors.length];
   }
 
   function drawSnake(s) {
     const pts = s.points;
-    if (pts.length < 2 || !snakeVisible(s)) return;
+    if (pts.length < 2 || !snakeVisible(s) || safeBlinkOff(s)) return;
     const fading = s.fade > 0;
     if (fading) {
       ctx.save();
@@ -4860,18 +5116,6 @@
       ctx.arc(p.x, p.y, rr, 0, Math.PI * 2);
       ctx.fillStyle = segmentTone(s, i);
       ctx.fill();
-      if (s.pattern === "belly") {
-        const ahead = pts[Math.max(0, i - stride)];
-        let dx = ahead.x - p.x;
-        let dy = ahead.y - p.y;
-        const len = Math.hypot(dx, dy) || 1;
-        dx /= len;
-        dy /= len;
-        ctx.beginPath();
-        ctx.arc(p.x - dy * rr * 0.38, p.y + dx * rr * 0.38, rr * 0.5, 0, Math.PI * 2);
-        ctx.fillStyle = s.c2;
-        ctx.fill();
-      }
       ctx.beginPath();
       ctx.arc(p.x - rr * 0.22, p.y - rr * 0.28, rr * (0.22 + 0.08 * glow), 0, Math.PI * 2);
       ctx.fillStyle = "rgba(255,255,255," + (0.16 + 0.26 * glow).toFixed(3) + ")";
@@ -4887,14 +5131,8 @@
     const eyeD = rad * 0.44;
     ctx.beginPath();
     ctx.arc(s.x, s.y, rad * 0.98, 0, Math.PI * 2);
-    ctx.fillStyle = s.c1;
+    ctx.fillStyle = segmentTone(s, 0);
     ctx.fill();
-    if (s.pattern === "belly") {
-      ctx.beginPath();
-      ctx.arc(s.x + px * rad * 0.4, s.y + py * rad * 0.4, rad * 0.44, 0, Math.PI * 2);
-      ctx.fillStyle = s.c2;
-      ctx.fill();
-    }
     drawEye(s.x + hx * rad * 0.3 + px * eyeD, s.y + hy * rad * 0.3 + py * eyeD, eyeR, hx, hy);
     drawEye(s.x + hx * rad * 0.3 - px * eyeD, s.y + hy * rad * 0.3 - py * eyeD, eyeR, hx, hy);
 
@@ -4938,7 +5176,7 @@
     ctx.textBaseline = "bottom";
     for (let i = 0; i < snakes.length; i++) {
       const s = snakes[i];
-      if (!s.alive || !inView(s.x, s.y, 48)) continue;
+      if (!s.alive || safeBlinkOff(s) || !inView(s.x, s.y, 48)) continue;
       const p = toScreen(s.x, s.y);
       const rad = snakeRadius(s) * cam.z;
       const size = clamp(12 + rad * 0.16, 12, 22);
@@ -5040,7 +5278,7 @@
 
     for (let i = 0; i < snakes.length; i++) {
       const s = snakes[i];
-      if (!s.alive) continue;
+      if (!s.alive || safeBlinkOff(s)) continue;
       const on = s.player || (spectate && s.uid === spectate.uid);
       ctx.beginPath();
       ctx.arc(cx + s.x * sc, cy + s.y * sc, on ? 4.2 : 2.1, 0, Math.PI * 2);
@@ -5057,6 +5295,7 @@
     ctx.textBaseline = "bottom";
     for (let i = 0; i < ranked.length; i++) {
       const s = ranked[i];
+      if (safeBlinkOff(s)) continue;
       const n = i + 1;
       const on = s.player || (spectate && s.uid === spectate.uid);
       const px = cx + s.x * sc;
@@ -5400,13 +5639,11 @@
     clearLengths();
     player = makeSnake({
       pos: clearPos(1600, 70),
-      mass: 12.5,
-      dots: 9,
+      mass: startDots * (12.5 / 9),
+      dots: startDots,
       name: (nameInput.value.trim() || "You").slice(0, 16),
       player: true,
       skin: SKINS[skinIndex],
-      skin2: SKINS[skin2Index],
-      pattern: PATTERNS[patternIndex].id,
     });
     snakes.push(player);
     cam.x = player.x;
@@ -5423,6 +5660,7 @@
     localStorage.setItem("sd-name", name);
     menuKillEl.textContent = "";
     menuKillEl.classList.add("hidden");
+    optionsEl.classList.add("hidden");
     startEl.classList.add("hidden");
     deadEl.classList.add("hidden");
     hudEl.classList.remove("hidden");
@@ -5434,6 +5672,7 @@
 
   function openTv(target) {
     ensureAudio();
+    optionsEl.classList.add("hidden");
     startEl.classList.add("hidden");
     deadEl.classList.add("hidden");
     hudEl.classList.remove("hidden");
@@ -5461,6 +5700,7 @@
     pendingKillcamLabel = "";
     hudEl.classList.add("hidden");
     deadEl.classList.add("hidden");
+    optionsEl.classList.add("hidden");
     startEl.classList.remove("hidden");
     setHudMode("menu");
     document.body.classList.remove("playing", "watching", "killcam");
@@ -5487,10 +5727,22 @@
   });
   howOpenBtn.addEventListener("click", (e) => {
     e.preventDefault();
+    optionsEl.classList.add("hidden");
     howEl.classList.remove("hidden");
   });
   howCloseBtn.addEventListener("click", () => {
     howEl.classList.add("hidden");
+  });
+  optionsOpenBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    howEl.classList.add("hidden");
+    optionsEl.classList.remove("hidden");
+  });
+  optionsCloseBtn.addEventListener("click", () => {
+    optionsEl.classList.add("hidden");
+  });
+  optionsEl.addEventListener("click", (e) => {
+    if (e.target === optionsEl) optionsEl.classList.add("hidden");
   });
   howEl.addEventListener("click", (e) => {
     if (e.target === howEl || e.target.closest("[data-how-close]")) howEl.classList.add("hidden");
@@ -5654,6 +5906,11 @@
     if (e.key === "Escape" && !howEl.classList.contains("hidden")) {
       e.preventDefault();
       howEl.classList.add("hidden");
+      return;
+    }
+    if (e.key === "Escape" && !optionsEl.classList.contains("hidden")) {
+      e.preventDefault();
+      optionsEl.classList.add("hidden");
       return;
     }
     if (e.key === "p" || e.key === "P") {

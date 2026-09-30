@@ -171,6 +171,14 @@ body {
   border-width: 4px;
 }
 
+.map-preview {
+  width: 7.5rem;
+  height: 7.5rem;
+  display: block;
+  border-radius: 50%;
+  box-shadow: 0 8px 22px var(--shadow);
+}
+
 .map-maker .skin.on {
   box-shadow: 0 0 0 2px #fff8e8;
 }
@@ -407,6 +415,37 @@ button.skin {
 button.skin:hover,
 button.skin:focus-visible {
   background: inherit;
+}
+
+button.skin.skin-off {
+  width: auto;
+  height: 1.75rem;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--foam);
+  background: rgba(6, 36, 42, 0.55);
+  border-color: rgba(255, 246, 220, 0.4);
+}
+
+button.skin.skin-off.on {
+  color: #7a220c;
+  background: linear-gradient(180deg, #ffe27a 0%, var(--gold) 46%, #f0a018 100%);
+  border-color: #fff8e8;
+}
+
+button.skin.skin-off:hover,
+button.skin.skin-off:focus-visible {
+  color: #fff;
+  background: rgba(6, 36, 42, 0.8);
+}
+
+button.skin.skin-off.on:hover,
+button.skin.skin-off.on:focus-visible {
+  color: #7a220c;
+  background: linear-gradient(180deg, #fff0a8 0%, #ffd056 48%, #ffb21c 100%);
 }
 
 #tv-back {
@@ -851,7 +890,8 @@ body.watching #rankline {
   opacity: 0.85;
 }
 
-.overlay.menu .best {
+.overlay.menu .best,
+#options .best {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -929,6 +969,25 @@ body.watching #rankline {
   border: 0;
   border-radius: 0;
   box-shadow: none;
+}
+
+.options-card {
+  width: min(28rem, 100%);
+  margin: 0 auto;
+  padding: clamp(1.2rem, 4vh, 2.4rem) 1.25rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.options-card .play-btn {
+  margin-top: 0.6rem;
+}
+
+.options-card .music-dock {
+  margin-top: 0.4rem;
 }
 
 .how-mast {
@@ -1126,8 +1185,17 @@ body.watching #rankline {
   padding: 0.85rem 2.4rem 0.95rem;
 }
 
-#how-open {
-  margin-top: 1.5rem;
+.menu-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.1rem;
+}
+
+#how-open,
+#options-open {
+  margin-top: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1135,7 +1203,7 @@ body.watching #rankline {
 }
 
 #tv-open {
-  margin-top: 1.5rem;
+  margin-top: 0;
   max-width: calc(100vw - 2.4rem);
   font-size: clamp(0.95rem, 3.2vw, 2rem);
   padding: 0 clamp(0.75rem, 2.2vw, 1.9rem);
@@ -1147,7 +1215,8 @@ body.watching #rankline {
   line-height: 1;
 }
 
-.overlay.menu .scores {
+.overlay.menu .scores,
+#options .scores {
   color: #fff;
   font-size: 0.68rem;
   line-height: 1.1;
@@ -1160,18 +1229,22 @@ body.watching #rankline {
     0 2px 0 #07343c;
 }
 
-.overlay.menu .scores li {
+.overlay.menu .scores li,
+#options .scores li {
   gap: 0.4rem;
   margin-bottom: 0.08rem;
 }
 
-.overlay.menu .scores li.hot {
+.overlay.menu .scores li.hot,
+#options .scores li.hot {
   color: #ffd056;
   font-size: 0.86rem;
 }
 
 .overlay.menu .scores li span:last-child,
-.overlay.menu .scores li.hot span:last-child {
+.overlay.menu .scores li.hot span:last-child,
+#options .scores li span:last-child,
+#options .scores li.hot span:last-child {
   font-size: 1em;
   animation: none;
 }

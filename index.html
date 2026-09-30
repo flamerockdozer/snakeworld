@@ -26,17 +26,84 @@
           placeholder="Your name"
           spellcheck="false"
         />
+        <button type="submit" class="play-btn">Play</button>
+      </form>
+      <div class="menu-actions">
+        <button type="button" id="tv-open" class="play-btn">World TV · Watch</button>
+        <button type="button" id="how-open" class="play-btn">How to play</button>
+        <button type="button" id="options-open" class="play-btn">Options</button>
+      </div>
+    </div>
+
+    <div id="options" class="how hidden" role="dialog" aria-modal="true" aria-labelledby="options-title">
+      <article class="options-card">
+        <header class="how-mast">
+          <p class="how-kicker">Snake World</p>
+          <h1 id="options-title" class="how-title">Options</h1>
+        </header>
+        <p class="map-sub">Color</p>
         <div id="skins" class="skins" role="listbox" aria-label="Snake color"></div>
         <p class="map-sub">Second color</p>
         <div id="skins2" class="skins" role="listbox" aria-label="Second body color"></div>
-        <p class="map-sub">Pattern</p>
-        <div id="patterns" class="patterns" role="listbox" aria-label="Snake pattern"></div>
+        <p class="map-sub">Third color</p>
+        <div id="skins3" class="skins" role="listbox" aria-label="Third body color"></div>
+        <p class="map-sub">Fourth color</p>
+        <div id="skins4" class="skins" role="listbox" aria-label="Fourth body color"></div>
+        <p class="map-sub">Segment length</p>
+        <label class="map-opacity">
+          <input id="band-length" type="range" min="1" max="16" step="1" value="4" aria-label="Segment length" />
+          <span id="band-length-value">4</span>
+        </label>
         <p class="map-sub">Growth rate</p>
         <label class="map-opacity">
           <input id="grow-rate" type="range" min="20" max="300" step="10" value="100" aria-label="Growth rate" />
           <span id="grow-rate-value">1.0x</span>
         </label>
-        <button type="submit" class="play-btn">Play</button>
+        <p class="map-sub">Saws</p>
+        <label class="map-opacity">
+          <input id="saw-count" type="range" min="0" max="60" step="2" value="30" aria-label="Saw count" />
+          <span id="saw-count-value">30</span>
+        </label>
+        <p class="map-sub">Food</p>
+        <label class="map-opacity">
+          <input id="food-amount" type="range" min="40" max="200" step="10" value="100" aria-label="Food amount" />
+          <span id="food-amount-value">1.0x</span>
+        </label>
+        <p class="map-sub">Turn speed</p>
+        <label class="map-opacity">
+          <input id="turn-rate" type="range" min="40" max="200" step="10" value="100" aria-label="Turn speed" />
+          <span id="turn-rate-value">1.0x</span>
+        </label>
+        <p class="map-sub">Move speed</p>
+        <label class="map-opacity">
+          <input id="move-rate" type="range" min="50" max="200" step="10" value="100" aria-label="Move speed" />
+          <span id="move-rate-value">1.0x</span>
+        </label>
+        <p class="map-sub">Gold</p>
+        <label class="map-opacity">
+          <input id="gold-count" type="range" min="0" max="90" step="2" value="44" aria-label="Gold orb count" />
+          <span id="gold-count-value">44</span>
+        </label>
+        <p class="map-sub">Start length</p>
+        <label class="map-opacity">
+          <input id="start-length" type="range" min="5" max="48" step="1" value="9" aria-label="Start length" />
+          <span id="start-length-value">9</span>
+        </label>
+        <p class="map-sub">Boost</p>
+        <label class="map-opacity">
+          <input id="boost-rate" type="range" min="40" max="250" step="10" value="100" aria-label="Boost speed" />
+          <span id="boost-rate-value">1.0x</span>
+        </label>
+        <p class="map-sub">Boost cost</p>
+        <label class="map-opacity">
+          <input id="burn-rate" type="range" min="20" max="250" step="10" value="100" aria-label="Boost cost" />
+          <span id="burn-rate-value">1.0x</span>
+        </label>
+        <p class="map-sub">Saw reach</p>
+        <label class="map-opacity">
+          <input id="saw-reach" type="range" min="40" max="220" step="10" value="100" aria-label="Saw reach" />
+          <span id="saw-reach-value">1.0x</span>
+        </label>
         <div id="map-maker" class="map-maker">
           <p class="map-label">Make a map</p>
           <p class="map-sub">Map type</p>
@@ -51,23 +118,25 @@
             <input id="map-opacity" type="range" min="10" max="100" step="1" value="55" aria-label="Map opacity" />
             <span id="map-opacity-value">55%</span>
           </label>
+          <p class="map-sub">Map preview</p>
+          <canvas id="map-preview" class="map-preview" width="240" height="240" aria-label="Map preview"></canvas>
         </div>
-      </form>
-      <p id="best-line" class="best">
-        <span id="best-text"></span>
-        <button type="button" id="best-clear" class="best-clear hidden" aria-label="Hold to delete best length">×</button>
-      </p>
-      <button type="button" id="how-open" class="play-btn">How to play</button>
-      <button type="button" id="tv-open" class="play-btn">World TV · Watch</button>
-      <ol id="highscores" class="scores live-scores"></ol>
-      <div class="music-dock">
-        <p class="map-sub">Music</p>
-        <label class="map-opacity">
-          <input id="music-volume" type="range" min="0" max="100" step="1" value="80" aria-label="Music volume" />
-          <span id="music-volume-value">80%</span>
-        </label>
-        <div id="music" class="music-picks" role="radiogroup" aria-label="Music"></div>
-      </div>
+        <p id="best-line" class="best">
+          <span id="best-text"></span>
+          <button type="button" id="best-clear" class="best-clear hidden" aria-label="Hold to delete best length">×</button>
+        </p>
+        <p class="map-sub">Live</p>
+        <ol id="highscores" class="scores live-scores"></ol>
+        <div class="music-dock">
+          <p class="map-sub">Music</p>
+          <label class="map-opacity">
+            <input id="music-volume" type="range" min="0" max="100" step="1" value="80" aria-label="Music volume" />
+            <span id="music-volume-value">80%</span>
+          </label>
+          <div id="music" class="music-picks" role="radiogroup" aria-label="Music"></div>
+        </div>
+        <button type="button" id="options-close" class="play-btn">Done</button>
+      </article>
     </div>
 
     <div id="dead" class="overlay hidden">
@@ -106,7 +175,7 @@
         <header class="how-mast">
           <p class="how-kicker">Snake World</p>
           <h1 id="how-title" class="how-title">How to play</h1>
-          <p class="how-dek">Controls, the map maker, growth rate, the 48 snakes, and why your own boost trail is not food.</p>
+          <p class="how-dek">Controls, the map maker, growth rate, the snakes, and why your own boost trail is not food.</p>
         </header>
 
         <nav class="how-nav" aria-label="On this page">
@@ -142,6 +211,10 @@
               <dd>Boost, once your length is past 25. Hold the mouse button, space, or shift. Let go to stop.</dd>
             </div>
             <div>
+              <dt>First 5 seconds</dt>
+              <dd>You cannot die, and you cannot wreck anyone. Your snake hides and shows every 0.3 seconds. You pass through other snakes, and saws pass through you, until the blink stops.</dd>
+            </div>
+            <div>
               <dt>P or Escape</dt>
               <dd>Pause. The Pause button does the same. Escape during a kill cam skips the replay.</dd>
             </div>
@@ -166,23 +239,71 @@
             </div>
             <div>
               <dt>Second color</dt>
-              <dd>The next row is the other color on your body. Bands, belly, and rings paint with it. Solid stays one color.</dd>
+              <dd>Optional. Off leaves the body one color. On, it is the next stripe.</dd>
             </div>
             <div>
-              <dt>Pattern</dt>
-              <dd>Solid, bands, belly, or rings. Bots wear one too, so a crowd is easier to read.</dd>
+              <dt>Third color</dt>
+              <dd>Optional. Off leaves it out. On, it follows the second color.</dd>
+            </div>
+            <div>
+              <dt>Fourth color</dt>
+              <dd>Optional. Off leaves it out. On, it is the last stripe.</dd>
+            </div>
+            <div>
+              <dt>Segment length</dt>
+              <dd>How many body segments each color runs before the next color. The stripes travel with the snake.</dd>
             </div>
             <div>
               <dt>Growth rate</dt>
               <dd>The slider from 0.2× to 3.0×. It changes how fast every orb adds length.</dd>
             </div>
             <div>
+              <dt>Saws</dt>
+              <dd>How many saws are on the map, from none to 60. 30 is the usual number.</dd>
+            </div>
+            <div>
+              <dt>Food</dt>
+              <dd>How full the map stays, from 0.4× to 2.0×.</dd>
+            </div>
+            <div>
+              <dt>Turn speed</dt>
+              <dd>How fast every snake can swing, from 0.4× to 2.0×. A long snake still turns wider.</dd>
+            </div>
+            <div>
+              <dt>Move speed</dt>
+              <dd>How fast every snake cruises, from 0.5× to 2.0×. Boost is still faster than that.</dd>
+            </div>
+            <div>
+              <dt>Gold</dt>
+              <dd>How many gold orbs stay on the map, from none to 90. 44 is the usual number.</dd>
+            </div>
+            <div>
+              <dt>Start length</dt>
+              <dd>How long you are when you press Play, from 5 to 48. 9 is the usual start.</dd>
+            </div>
+            <div>
+              <dt>Boost</dt>
+              <dd>How much faster boost is than your cruise, from 0.4× to 2.5×.</dd>
+            </div>
+            <div>
+              <dt>Boost cost</dt>
+              <dd>How fast boosting spends length, from 0.2× to 2.5×.</dd>
+            </div>
+            <div>
+              <dt>Saw reach</dt>
+              <dd>How far a saw notices a snake, from 0.4× to 2.2×. A bigger snake still draws them from farther away.</dd>
+            </div>
+            <div>
               <dt>Music</dt>
-              <dd>Thirty-six songs sit at the bottom of the menu, three to a row. The slider sets how loud they are. Off stops the song. The choice is remembered.</dd>
+              <dd>Thirty-nine songs sit in Options, three to a row. The slider sets how loud they are. Off stops the song. The choice is remembered.</dd>
+            </div>
+            <div>
+              <dt>Options</dt>
+              <dd>Colors, segment length, growth, snakes, saws, food, speeds, gold, start length, boost, the map, your best length, who is alive, and the music.</dd>
             </div>
             <div>
               <dt>Play</dt>
-              <dd>Drops you into the arena with the name, colors, pattern, growth rate, and map you set.</dd>
+              <dd>Drops you into the arena with the name, colors, and options you set.</dd>
             </div>
             <div>
               <dt>Best length ×</dt>
@@ -190,7 +311,7 @@
             </div>
             <div>
               <dt>Live names</dt>
-              <dd>The list under World TV is who is alive right now. Click a name to watch that snake.</dd>
+              <dd>The live list in Options is who is alive right now. Click a name to watch that snake.</dd>
             </div>
           </dl>
           <h3>World TV</h3>
@@ -216,7 +337,7 @@
 
         <section id="how-map">
           <h2>Make a map</h2>
-          <p>The map maker is on the menu, under Play. It only changes how the arena looks. The world stays a circle, snakes still wrap the rim, and the rules do not change. What you pick is saved for the next time you open the game.</p>
+          <p>The map maker is in Options. It only changes how the arena looks. The world stays a circle, snakes still wrap the rim, and the rules do not change. What you pick is saved for the next time you open the game. Map preview shows that look before you press Play.</p>
           <dl class="how-keys">
             <div>
               <dt>Map type</dt>
@@ -238,15 +359,19 @@
               <dt>Opacity</dt>
               <dd>How strong that paint sits, from 10% to 100%. It starts at 55%.</dd>
             </div>
+            <div>
+              <dt>Map preview</dt>
+              <dd>The circle under opacity. It shows the tiles, filling, outline, and strength you just picked.</dd>
+            </div>
           </dl>
           <p>Set the map before you press Play. Play again keeps the same map.</p>
         </section>
 
         <section id="how-grow">
           <h2>Growth rate</h2>
-          <p>The growth rate slider sits on the menu, between your color and Play. It runs from 0.2× to 3.0×, in steps of 0.1×. 1.0× is the usual pace.</p>
+          <p>The growth rate slider is in Options. It runs from 0.2× to 3.0×, in steps of 0.1×. 1.0× is the usual pace.</p>
           <p>It multiplies the length you get from every orb: ordinary dots, glowing ones, gold, saw trails, wreck piles, and other snakes’ boost drops. 0.2× is a slow graze. 3.0× is three times the usual meal, so the same orb makes you huge much faster, and it makes everyone else huge faster too. The slider applies to the whole arena, not just you.</p>
-          <p>It does not change boost cost, turn width, or how many snakes are out there. A higher rate only means food is worth more. The number you leave it on is remembered.</p>
+          <p>It does not change boost cost, turn speed, cruise speed, or how many snakes are out there. Boost, turn, and speed have their own sliders. Forty-eight other snakes stay in the arena. A higher rate only means food is worth more. The number you leave it on is remembered.</p>
           <aside class="how-call">
             <p>0.2× slow. 1.0× normal. 3.0× triple. Same orbs, different length.</p>
           </aside>
@@ -254,24 +379,21 @@
 
         <section id="how-snakes">
           <h2>How many snakes</h2>
-          <p>The arena keeps 48 other snakes alive. When you press Play, you join them, so 49 snakes are in the world: you and 48 others.</p>
-          <p>When one of them dies, a new snake spawns to fill the gap. The count of living rivals stays at 48. The menu and World TV are the same arena without you, so you are watching those 48.</p>
+          <p>Forty-eight other snakes stay alive. When you press Play, you join them.</p>
+          <p>When one of them dies, a new snake spawns until the living rivals are back at 48. The menu and World TV are the same arena without you.</p>
           <p>They eat, boost, hunt, and flee saws. Some chase you. Your length is how you rank against all of them on the board.</p>
-          <aside class="how-call">
-            <p>48 snakes, always. You are the 49th.</p>
-          </aside>
         </section>
 
         <section id="how-steer">
           <h2>Steer with the mouse</h2>
           <p>Move the mouse. Your head turns toward the cursor. It does not snap onto it, and the arrow keys do not drive.</p>
-          <p>The longer you are, the wider you have to turn. A huge snake needs open water to come around. Boosting makes that turn a little wider still. The camera pulls back as you grow, so you can see the body you are dragging behind you.</p>
+          <p>The longer you are, the wider you have to turn. A huge snake needs open water to come around. Boosting makes that turn a little wider still. The turn slider in Options sets how fast every snake can swing, from 0.4× to 2.0×. 1.0× is the usual turn. The camera pulls back as you grow, so you can see the body you are dragging behind you.</p>
         </section>
 
         <section id="how-boost">
           <h2>You cannot eat your boost tail</h2>
-          <p>Hold the mouse button, the space bar, or shift once your length is past 25. You speed up to a little under twice your cruise, the view pulls back, and nearby orbs tug toward your head a bit harder.</p>
-          <p>Boosting spends length the whole time you hold it. Once it is fully open, that is about nine length a second. That length falls off your tail as a spray of orbs in your color. Those orbs are yours. Your head goes right through them and they do not count. You cannot eat your own boost tail, not by looping around, not by slowing down, not later. They stay inedible to you.</p>
+          <p>Hold the mouse button, the space bar, or shift once your length is past 25. You speed up to a little under twice your cruise, the view pulls back, and nearby orbs tug toward your head a bit harder. The speed slider in Options sets that cruise for every snake, from 0.5× to 2.0×. The boost slider sets how much faster that gear is, from 0.4× to 2.5×.</p>
+          <p>Boosting spends length the whole time you hold it. Once it is fully open, that is about nine length a second at the usual cost. The boost cost slider runs from 0.2× to 2.5×. That length falls off your tail as a spray of orbs in your color. Those orbs are yours. Your head goes right through them and they do not count. You cannot eat your own boost tail, not by looping around, not by slowing down, not later. They stay inedible to you.</p>
           <aside class="how-call">
             <p>Your boost trail is food for everyone except you.</p>
           </aside>
@@ -281,13 +403,13 @@
 
         <section id="how-orbs">
           <h2>Orbs</h2>
-          <p>The arena is packed with colored orbs. Eat them with your head. They drift, and when you get close they slide toward you. Most are small. A few glow bigger and are worth more. A run of eats rings louder the longer the chain goes.</p>
+          <p>The arena is packed with colored orbs. Eat them with your head. They drift, and when you get close they slide toward you. Most are small. A few glow bigger and are worth more. A run of eats rings louder the longer the chain goes. The food slider in Options sets how full the map stays, from 0.4× to 2.0×. 1.0× is the usual fill.</p>
           <p>Length is the score, shown as a whole number. Early orbs fatten you faster. The same orb adds less once you are huge, so the first thousand comes easier than the next one. Growth rate multiplies whatever an orb would have given you.</p>
         </section>
 
         <section id="how-gold">
           <h2>Gold</h2>
-          <p>Gold orbs run. A few dozen of them are always on the map. They idle until a head gets close, then they bolt, and they bolt harder if that snake is boosting. One gold orb is worth far more than a pile of ordinary dots.</p>
+          <p>Gold orbs run. The gold slider in Options sets how many stay on the map, from none to 90. 44 is the usual number. They idle until a head gets close, then they bolt, and they bolt harder if that snake is boosting. One gold orb is worth far more than a pile of ordinary dots.</p>
           <p>Do not chase one in a straight line. Swing wide and meet it where it is going. A boost straight at gold usually means you arrive late, thinner, and with a trail of free food behind you.</p>
         </section>
 
@@ -302,7 +424,7 @@
 
         <section id="how-saws">
           <h2>Saws</h2>
-          <p>Saws hunt snakes. They cruise, pick a head, orbit it, then charge. A bigger snake draws them from farther away, and a charge at a big snake is faster. Touch a blade and you pop. The feed says a saw got you.</p>
+          <p>Saws hunt snakes. They cruise, pick a head, orbit it, then charge. A bigger snake draws them from farther away, and a charge at a big snake is faster. Touch a blade and you pop. The feed says a saw got you. The saws slider in Options sets how many are out, from none to 60. 30 is the usual number. The saw reach slider sets how far they notice a head, from 0.4× to 2.2×.</p>
           <p>While a saw is charging it sheds a trail of dots, some of them gold. Stay off the teeth and take the trail after it passes. If one starts circling you, leave before the dash. They bounce off the rim of the world. They do not wrap.</p>
         </section>
 
@@ -347,7 +469,7 @@
 
         <section id="how-dead">
           <h2>When you die</h2>
-          <p>The screen says Eliminated, who wrecked you or that a saw got you, and how long you were. Your orbs are already on the map. Play again jumps straight back in with the same name, colors, pattern, growth rate, and map. The menu keeps your best eight runs.</p>
+          <p>The screen says Eliminated, who wrecked you or that a saw got you, and how long you were. Your orbs are already on the map. Play again jumps straight back in with the same name, colors, and options. The menu keeps your best eight runs.</p>
         </section>
 
         <section id="how-tv">

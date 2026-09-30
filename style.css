@@ -1304,6 +1304,10 @@ body.watching #rankline {
   gap: 0.45rem;
 }
 
+.music-dock .map-opacity {
+  width: 100%;
+}
+
 .music-picks {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1339,6 +1343,49 @@ body.watching #rankline {
   background: linear-gradient(180deg, #ffe27a 0%, var(--gold) 46%, #f0a018 100%);
   border-color: #fff6dc;
   box-shadow: 0 0.08em 0 #c44a28;
+}
+
+.patterns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  max-width: 22rem;
+}
+
+.pattern {
+  animation: none;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  font-family: "Titan One", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1;
+  padding: 0.38rem 0.7rem 0.42rem;
+  border-radius: 999px;
+  color: var(--foam);
+  background: rgba(6, 36, 42, 0.55);
+  border: 2px solid rgba(255, 246, 220, 0.4);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.pattern.on {
+  color: #7a220c;
+  background: linear-gradient(180deg, #ffe27a 0%, var(--gold) 46%, #f0a018 100%);
+  border-color: #fff6dc;
+}
+
+.pattern:hover,
+.pattern:focus-visible {
+  background: rgba(6, 36, 42, 0.8);
+  color: #fff;
+}
+
+.pattern.on:hover,
+.pattern.on:focus-visible {
+  color: #7a220c;
+  background: linear-gradient(180deg, #fff0a8 0%, #ffd056 48%, #ffb21c 100%);
 }
 
 .skins {

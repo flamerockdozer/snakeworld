@@ -27,6 +27,10 @@
           spellcheck="false"
         />
         <div id="skins" class="skins" role="listbox" aria-label="Snake color"></div>
+        <p class="map-sub">Second color</p>
+        <div id="skins2" class="skins" role="listbox" aria-label="Second body color"></div>
+        <p class="map-sub">Pattern</p>
+        <div id="patterns" class="patterns" role="listbox" aria-label="Snake pattern"></div>
         <p class="map-sub">Growth rate</p>
         <label class="map-opacity">
           <input id="grow-rate" type="range" min="20" max="300" step="10" value="100" aria-label="Growth rate" />
@@ -58,6 +62,10 @@
       <ol id="highscores" class="scores live-scores"></ol>
       <div class="music-dock">
         <p class="map-sub">Music</p>
+        <label class="map-opacity">
+          <input id="music-volume" type="range" min="0" max="100" step="1" value="80" aria-label="Music volume" />
+          <span id="music-volume-value">80%</span>
+        </label>
         <div id="music" class="music-picks" role="radiogroup" aria-label="Music"></div>
       </div>
     </div>
@@ -154,7 +162,15 @@
             </div>
             <div>
               <dt>Color</dt>
-              <dd>The row of dots under your name is your snake’s skin.</dd>
+              <dd>The first row of dots under your name is your snake’s skin.</dd>
+            </div>
+            <div>
+              <dt>Second color</dt>
+              <dd>The next row is the other color on your body. Bands, belly, and rings paint with it. Solid stays one color.</dd>
+            </div>
+            <div>
+              <dt>Pattern</dt>
+              <dd>Solid, bands, belly, or rings. Bots wear one too, so a crowd is easier to read.</dd>
             </div>
             <div>
               <dt>Growth rate</dt>
@@ -162,11 +178,11 @@
             </div>
             <div>
               <dt>Music</dt>
-              <dd>Thirty-six songs sit at the bottom of the menu, three to a row. Frenzy, Wacko, Spiral, Mayhem, Jolt, and Riot are the wild ones. Off stops the song. The choice is remembered.</dd>
+              <dd>Thirty-six songs sit at the bottom of the menu, three to a row. The slider sets how loud they are. Off stops the song. The choice is remembered.</dd>
             </div>
             <div>
               <dt>Play</dt>
-              <dd>Drops you into the arena with the name, skin, growth rate, and map you set.</dd>
+              <dd>Drops you into the arena with the name, colors, pattern, growth rate, and map you set.</dd>
             </div>
             <div>
               <dt>Best length ×</dt>
@@ -204,7 +220,7 @@
           <dl class="how-keys">
             <div>
               <dt>Map type</dt>
-              <dd>The tile on the floor. Hexagons, bricks, stars, waves, stripes, and plenty more.</dd>
+              <dd>The tile on the floor. Hexagons, bricks, basketweave, planks, pavers, chevrons, and plenty more.</dd>
             </div>
             <div>
               <dt>Traditional</dt>
@@ -331,7 +347,7 @@
 
         <section id="how-dead">
           <h2>When you die</h2>
-          <p>The screen says Eliminated, who wrecked you or that a saw got you, and how long you were. Your orbs are already on the map. Play again jumps straight back in with the same name, skin, growth rate, and map. The menu keeps your best eight runs.</p>
+          <p>The screen says Eliminated, who wrecked you or that a saw got you, and how long you were. Your orbs are already on the map. Play again jumps straight back in with the same name, colors, pattern, growth rate, and map. The menu keeps your best eight runs.</p>
         </section>
 
         <section id="how-tv">

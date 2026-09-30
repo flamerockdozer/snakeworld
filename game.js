@@ -21,6 +21,8 @@
   const nameInput = document.getElementById("player-name");
   const startForm = document.getElementById("start-form");
   const skinsEl = document.getElementById("skins");
+  const skins2El = document.getElementById("skins2");
+  const patternsEl = document.getElementById("patterns");
   const againBtn = document.getElementById("again");
   const mapTypesEl = document.getElementById("map-types");
   const mapOutlinesEl = document.getElementById("map-outlines");
@@ -31,6 +33,8 @@
   const growRateEl = document.getElementById("grow-rate");
   const growRateValueEl = document.getElementById("grow-rate-value");
   const musicEl = document.getElementById("music");
+  const musicVolumeEl = document.getElementById("music-volume");
+  const musicVolumeValueEl = document.getElementById("music-volume-value");
   const highscoresEl = document.getElementById("highscores");
   const deadScoresEl = document.getElementById("dead-scores");
   const tvBackBtn = document.getElementById("tv-back");
@@ -108,6 +112,13 @@
     { name: "Graphite", color: "#6b7c86" },
   ];
 
+  const PATTERNS = [
+    { id: "solid", name: "Solid" },
+    { id: "bands", name: "Bands" },
+    { id: "belly", name: "Belly" },
+    { id: "rings", name: "Rings" },
+  ];
+
   const OUTLINES = [
     { name: "Gold", rim1: "#ffd056", rim2: "#ff5b3a", edge: "rgba(255, 70, 50, 0.28)" },
     { name: "Midnight", rim1: "#b46bff", rim2: "#5ec4ff", edge: "rgba(120, 90, 255, 0.32)" },
@@ -169,11 +180,6 @@
       svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="12,4 24,4 32,12 32,24 24,32 12,32 4,24 4,12"/></svg>',
     },
     {
-      id: "circle",
-      name: "Circle",
-      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="12"/></svg>',
-    },
-    {
       id: "slant",
       name: "Slant",
       svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="10,5 28,5 26,31 8,31"/></svg>',
@@ -189,19 +195,9 @@
       svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="5" y="6" width="26" height="6"/><rect x="5" y="15" width="26" height="6"/><rect x="5" y="24" width="26" height="6"/></svg>',
     },
     {
-      id: "arch",
-      name: "Arch",
-      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M6 30V16a12 12 0 0 1 24 0v14"/></svg>',
-    },
-    {
       id: "zigzag",
       name: "Zigzag",
       svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 12 L14 6 L22 12 L32 6 M4 22 L14 16 L22 22 L32 16 M4 32 L14 26 L22 32 L32 26"/></svg>',
-    },
-    {
-      id: "ring",
-      name: "Ring",
-      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="12"/><circle cx="18" cy="18" r="6"/></svg>',
     },
     {
       id: "star",
@@ -209,14 +205,34 @@
       svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="18,3 22,13 33,13 24,20 27,31 18,24 9,31 12,20 3,13 14,13"/></svg>',
     },
     {
-      id: "pill",
-      name: "Pill",
-      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="6" y="12" width="24" height="12" rx="6"/></svg>',
-    },
-    {
       id: "slash",
       name: "Slash",
       svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><polygon points="14,4 22,4 10,32 2,32"/><polygon points="28,4 36,4 24,32 16,32"/></svg>',
+    },
+    {
+      id: "basket",
+      name: "Basket",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="4" width="16" height="6"/><rect x="4" y="11" width="16" height="6"/><rect x="22" y="4" width="10" height="13"/><rect x="4" y="19" width="10" height="13"/><rect x="16" y="19" width="16" height="6"/><rect x="16" y="26" width="16" height="6"/></svg>',
+    },
+    {
+      id: "pinwheel",
+      name: "Pinwheel",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="4" width="16" height="8"/><rect x="20" y="4" width="8" height="16"/><rect x="12" y="24" width="16" height="8"/><rect x="4" y="12" width="8" height="16"/><rect x="14" y="14" width="8" height="8"/></svg>',
+    },
+    {
+      id: "paver",
+      name: "Paver",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="5" y="5" width="11" height="11"/><rect x="20" y="5" width="11" height="11"/><rect x="5" y="20" width="11" height="11"/><rect x="20" y="20" width="11" height="11"/></svg>',
+    },
+    {
+      id: "chevron",
+      name: "Chevron",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M4 8 L18 20 L32 8 M4 18 L18 30 L32 18"/></svg>',
+    },
+    {
+      id: "plank",
+      name: "Plank",
+      svg: '<svg viewBox="0 0 36 36" aria-hidden="true"><rect x="4" y="4" width="18" height="16"/><rect x="24" y="4" width="8" height="16"/><rect x="4" y="22" width="8" height="10"/><rect x="14" y="22" width="18" height="10"/></svg>',
     },
   ];
 
@@ -293,6 +309,8 @@
   let best = Number(localStorage.getItem("sd-best") || 0);
   let scores = loadScores();
   let skinIndex = Number(localStorage.getItem("sd-skin") || 0);
+  let skin2Index = 4;
+  let patternIndex = 0;
   let outlineIndex = 0;
   let fillIndex = 0;
   let mapType = "hex";
@@ -316,6 +334,7 @@
   let boostHum = null;
   let boostGain = null;
   let musicIndex = 0;
+  let musicVol = 0.8;
   let musicGain = null;
   let musicComp = null;
   let musicTimer = 0;
@@ -347,6 +366,16 @@
     skinIndex = 0;
   }
   {
+    const savedSkin2 = localStorage.getItem("sd-skin2");
+    const n = Number(savedSkin2);
+    if (savedSkin2 != null && Number.isInteger(n) && n >= 0 && n < SKINS.length) skin2Index = n;
+  }
+  {
+    const savedPattern = localStorage.getItem("sd-pattern");
+    const found = PATTERNS.findIndex((p) => p.id === savedPattern);
+    if (found >= 0) patternIndex = found;
+  }
+  {
     const legacy = Number(localStorage.getItem("sd-map") || 0);
     const fallback = Number.isInteger(legacy) && legacy >= 0 && legacy < FILLS.length ? legacy : 0;
     const outlineRaw = localStorage.getItem("sd-outline");
@@ -367,12 +396,18 @@
     if (Number.isFinite(savedGrow)) growRate = clamp(savedGrow, 0.2, 3);
     growRateEl.value = String(Math.round(growRate * 100));
     growRateValueEl.textContent = growRate.toFixed(1) + "x";
+    const savedVol = Number(localStorage.getItem("sd-music-vol"));
+    if (Number.isFinite(savedVol)) musicVol = clamp(savedVol, 0, 1);
+    musicVolumeEl.value = String(Math.round(musicVol * 100));
+    musicVolumeValueEl.textContent = Math.round(musicVol * 100) + "%";
   }
 
   nameInput.value = localStorage.getItem("sd-name") || "";
   renderBest();
   renderScores();
   renderSkins();
+  renderSkin2();
+  renderPatterns();
   renderMapMaker();
   seedReefs();
   seedBubbles();
@@ -604,6 +639,13 @@
     localStorage.setItem("sd-opacity", String(mapOpacity));
   });
 
+  musicVolumeEl.addEventListener("input", () => {
+    musicVol = clamp(Number(musicVolumeEl.value) / 100, 0, 1);
+    musicVolumeValueEl.textContent = Math.round(musicVol * 100) + "%";
+    localStorage.setItem("sd-music-vol", String(musicVol));
+    applyMusicVol();
+  });
+
   mapTraditionalBtn.addEventListener("click", () => {
     outlineIndex = OUTLINES.findIndex((o) => o.name === "Traditional");
     fillIndex = FILLS.findIndex((f) => f.name === "Traditional");
@@ -627,6 +669,41 @@
         renderSkins();
       });
       skinsEl.appendChild(btn);
+    });
+  }
+
+  function renderSkin2() {
+    skins2El.innerHTML = "";
+    SKINS.forEach((skin, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "skin" + (i === skin2Index ? " on" : "");
+      btn.style.background = skin.color;
+      btn.title = skin.name;
+      btn.setAttribute("aria-label", skin.name);
+      btn.addEventListener("click", () => {
+        skin2Index = i;
+        localStorage.setItem("sd-skin2", String(i));
+        renderSkin2();
+      });
+      skins2El.appendChild(btn);
+    });
+  }
+
+  function renderPatterns() {
+    patternsEl.innerHTML = "";
+    PATTERNS.forEach((pattern, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "pattern" + (i === patternIndex ? " on" : "");
+      btn.textContent = pattern.name;
+      btn.setAttribute("aria-label", pattern.name);
+      btn.addEventListener("click", () => {
+        patternIndex = i;
+        localStorage.setItem("sd-pattern", pattern.id);
+        renderPatterns();
+      });
+      patternsEl.appendChild(btn);
     });
   }
 
@@ -937,6 +1014,9 @@
     const p = opts.pos || randomInDisk(900);
     const skin = opts.skin || pick(SKINS);
     const color = skin.color || skin[0] || skin;
+    const pattern = opts.pattern || pick(PATTERNS).id;
+    const skin2 = opts.skin2 || pick(SKINS);
+    const c2 = skin2.color || color;
     const angle = Math.random() * Math.PI * 2;
     const mass = opts.mass || rand(16, 38);
     const dots = opts.dots || SNAKE_DOTS;
@@ -967,7 +1047,8 @@
       points,
       trail,
       c1: color,
-      c2: color,
+      c2,
+      pattern,
       name: opts.name || "Snake",
       uid: snakeUid++,
       player: !!opts.player,
@@ -1053,6 +1134,8 @@
         name: (nameInput.value.trim() || "You").slice(0, 16),
         player: true,
         skin: SKINS[skinIndex],
+        skin2: SKINS[skin2Index],
+        pattern: PATTERNS[patternIndex].id,
       });
       snakes.push(player);
       cam.x = player.x;
@@ -2117,6 +2200,7 @@
       mass: s.mass,
       c1: s.c1,
       c2: s.c2,
+      pattern: s.pattern,
       name: s.name,
       uid: s.uid,
       player: s.player,
@@ -2241,6 +2325,7 @@
       mass: lerp(a.mass, b.mass, t),
       c1: b.c1,
       c2: b.c2,
+      pattern: b.pattern,
       name: b.name,
       uid: b.uid,
       player: b.player,
@@ -3711,6 +3796,18 @@
     }
   }
 
+  function musicLevel() {
+    return Math.max(0.0001, musicVol * 0.9);
+  }
+
+  function applyMusicVol() {
+    if (!musicGain || !audioCtx) return;
+    const now = audioCtx.currentTime;
+    musicGain.gain.cancelScheduledValues(now);
+    musicGain.gain.setValueAtTime(musicGain.gain.value, now);
+    musicGain.gain.linearRampToValueAtTime(musicLevel(), now + 0.08);
+  }
+
   function startMusic() {
     const a = audioCtx;
     if (!a || musicTimer) return;
@@ -3724,7 +3821,7 @@
     musicGain = a.createGain();
     musicGain.gain.value = 0.0001;
     musicComp.connect(musicGain).connect(a.destination);
-    musicGain.gain.linearRampToValueAtTime(0.9, a.currentTime + 0.45);
+    musicGain.gain.linearRampToValueAtTime(musicLevel(), a.currentTime + 0.45);
     musicTime = a.currentTime + 0.05;
     musicBar = 0;
     fillMusic();
@@ -4006,7 +4103,7 @@
     const fills = new Map();
     const outline = new Path2D();
 
-    if (mapType === "circle" || mapType === "ring" || mapType === "star" || mapType === "pill") {
+    if (mapType === "star" || mapType === "paver") {
       ctx.fillStyle = m.arena;
       ctx.fillRect(view.minX - 80, view.minY - 80, view.maxX - view.minX + 160, view.maxY - view.minY + 160);
     }
@@ -4017,16 +4114,17 @@
       diamond: addDiamondTiles,
       brick: addBrickTiles,
       oct: addOctTiles,
-      circle: addCircleTiles,
       slant: addSlantTiles,
       wave: addWaveTiles,
       stripe: addStripeTiles,
-      arch: addArchTiles,
       zigzag: addZigzagTiles,
-      ring: addRingTiles,
       star: addStarTiles,
-      pill: addPillTiles,
       slash: addSlashTiles,
+      basket: addBasketTiles,
+      pinwheel: addPinwheelTiles,
+      paver: addPaverTiles,
+      chevron: addChevronTiles,
+      plank: addPlankTiles,
     };
     (floors[mapType] || addHexTiles)(fills, outline, tones, view);
 
@@ -4156,26 +4254,6 @@
     path.closePath();
   }
 
-  function addCircleTiles(fills, outline, tones, view) {
-    const step = 72;
-    const r = 26;
-    const col0 = Math.floor(view.minX / step) - 1;
-    const col1 = Math.ceil(view.maxX / step) + 1;
-    const row0 = Math.floor(view.minY / step) - 1;
-    const row1 = Math.ceil(view.maxY / step) + 1;
-    for (let row = row0; row <= row1; row++) {
-      const shift = row & 1 ? step * 0.5 : 0;
-      for (let col = col0; col <= col1; col++) {
-        const x = col * step + shift;
-        const y = row * step;
-        stampTile(fills, outline, tones, col, row, (path) => {
-          path.moveTo(x + r, y);
-          path.arc(x, y, r, 0, Math.PI * 2);
-        });
-      }
-    }
-  }
-
   function addSlantTiles(fills, outline, tones, view) {
     const w = 70;
     const h = 50;
@@ -4248,40 +4326,6 @@
     }
   }
 
-  function addArchTiles(fills, outline, tones, view) {
-    const w = 72;
-    const r = w * 0.5;
-    const period = r + 20;
-    const steps = 6;
-    const yAt = (x, row) => {
-      const u = ((x % w) + w) % w;
-      const dx = u - r;
-      const inside = r * r - dx * dx;
-      return row * period + (inside > 0 ? Math.sqrt(inside) : 0);
-    };
-    const row0 = Math.floor(view.minY / period) - 2;
-    const row1 = Math.ceil(view.maxY / period) + 2;
-    const col0 = Math.floor(view.minX / w) - 1;
-    const col1 = Math.ceil(view.maxX / w) + 1;
-    for (let row = row0; row <= row1; row++) {
-      for (let col = col0; col <= col1; col++) {
-        const x0 = col * w;
-        stampTile(fills, outline, tones, col, row, (path) => {
-          path.moveTo(x0, yAt(x0, row));
-          for (let s = 1; s <= steps; s++) {
-            const x = x0 + (w * s) / steps;
-            path.lineTo(x, yAt(x, row));
-          }
-          for (let s = steps; s >= 0; s--) {
-            const x = x0 + (w * s) / steps;
-            path.lineTo(x, yAt(x, row + 1));
-          }
-          path.closePath();
-        });
-      }
-    }
-  }
-
   function addZigzagTiles(fills, outline, tones, view) {
     const seg = 64;
     const h = 48;
@@ -4309,29 +4353,6 @@
           path.lineTo(x1, yTop(x1, row + 1));
           path.lineTo(x0, yTop(x0, row + 1));
           path.closePath();
-        });
-      }
-    }
-  }
-
-  function addRingTiles(fills, outline, tones, view) {
-    const step = 78;
-    const r = 28;
-    const hole = 14;
-    const col0 = Math.floor(view.minX / step) - 1;
-    const col1 = Math.ceil(view.maxX / step) + 1;
-    const row0 = Math.floor(view.minY / step) - 1;
-    const row1 = Math.ceil(view.maxY / step) + 1;
-    for (let row = row0; row <= row1; row++) {
-      const shift = row & 1 ? step * 0.5 : 0;
-      for (let col = col0; col <= col1; col++) {
-        const x = col * step + shift;
-        const y = row * step;
-        stampTile(fills, outline, tones, col, row, (path) => {
-          path.moveTo(x + r, y);
-          path.arc(x, y, r, 0, Math.PI * 2);
-          path.moveTo(x + hole, y);
-          path.arc(x, y, hole, 0, Math.PI * 2, true);
         });
       }
     }
@@ -4365,33 +4386,146 @@
     path.closePath();
   }
 
-  function addPillTiles(fills, outline, tones, view) {
-    const w = 78;
-    const h = 28;
-    const gapX = 96;
-    const gapY = 52;
-    const col0 = Math.floor(view.minX / gapX) - 1;
-    const col1 = Math.ceil(view.maxX / gapX) + 1;
-    const row0 = Math.floor(view.minY / gapY) - 1;
-    const row1 = Math.ceil(view.maxY / gapY) + 1;
+  function traceRect(x, y, w, h, path) {
+    path.moveTo(x, y);
+    path.lineTo(x + w, y);
+    path.lineTo(x + w, y + h);
+    path.lineTo(x, y + h);
+    path.closePath();
+  }
+
+  function addBasketTiles(fills, outline, tones, view) {
+    const u = 28;
+    const bw = u * 3;
+    const bh = u * 4;
+    const bricks = [
+      [0, 0, 2, 1],
+      [0, 1, 2, 1],
+      [2, 0, 1, 2],
+      [0, 2, 1, 2],
+      [1, 2, 2, 1],
+      [1, 3, 2, 1],
+    ];
+    const col0 = Math.floor(view.minX / bw) - 1;
+    const col1 = Math.ceil(view.maxX / bw) + 1;
+    const row0 = Math.floor(view.minY / bh) - 1;
+    const row1 = Math.ceil(view.maxY / bh) + 1;
     for (let row = row0; row <= row1; row++) {
-      const shift = row & 1 ? gapX * 0.5 : 0;
       for (let col = col0; col <= col1; col++) {
-        const x = col * gapX + shift;
-        const y = row * gapY;
-        stampTile(fills, outline, tones, col, row, (path) => tracePill(x, y, w, h, path));
+        const ox = col * bw;
+        const oy = row * bh;
+        for (let b = 0; b < bricks.length; b++) {
+          const brick = bricks[b];
+          stampTile(fills, outline, tones, col * 4 + brick[0], row * 6 + brick[1], (path) => {
+            traceRect(ox + brick[0] * u, oy + brick[1] * u, brick[2] * u, brick[3] * u, path);
+          });
+        }
       }
     }
   }
 
-  function tracePill(x, y, w, h, path) {
-    const r = h * 0.5;
-    path.moveTo(x + r, y - r);
-    path.lineTo(x + w - r, y - r);
-    path.arc(x + w - r, y, r, -Math.PI / 2, Math.PI / 2);
-    path.lineTo(x + r, y + r);
-    path.arc(x + r, y, r, Math.PI / 2, Math.PI * 1.5);
-    path.closePath();
+  function addPinwheelTiles(fills, outline, tones, view) {
+    const a = 26;
+    const cell = a * 3;
+    const parts = [
+      [0, 0, 2, 1],
+      [2, 0, 1, 2],
+      [1, 2, 2, 1],
+      [0, 1, 1, 2],
+      [1, 1, 1, 1],
+    ];
+    const col0 = Math.floor(view.minX / cell) - 1;
+    const col1 = Math.ceil(view.maxX / cell) + 1;
+    const row0 = Math.floor(view.minY / cell) - 1;
+    const row1 = Math.ceil(view.maxY / cell) + 1;
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        const ox = col * cell;
+        const oy = row * cell;
+        for (let p = 0; p < parts.length; p++) {
+          const part = parts[p];
+          stampTile(fills, outline, tones, col * 3 + part[0], row * 3 + part[1] + p, (path) => {
+            traceRect(ox + part[0] * a, oy + part[1] * a, part[2] * a, part[3] * a, path);
+          });
+        }
+      }
+    }
+  }
+
+  function addPaverTiles(fills, outline, tones, view) {
+    const step = 74;
+    const inset = 8;
+    const side = step - inset * 2;
+    const col0 = Math.floor(view.minX / step) - 1;
+    const col1 = Math.ceil(view.maxX / step) + 1;
+    const row0 = Math.floor(view.minY / step) - 1;
+    const row1 = Math.ceil(view.maxY / step) + 1;
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        stampTile(fills, outline, tones, col, row, (path) => {
+          traceRect(col * step + inset, row * step + inset, side, side, path);
+        });
+      }
+    }
+  }
+
+  function addChevronTiles(fills, outline, tones, view) {
+    const w = 100;
+    const h = 56;
+    const depth = 24;
+    const yAt = (x, row) => {
+      const u = ((x % w) + w) % w;
+      const half = w * 0.5;
+      const t = u <= half ? u / half : (w - u) / half;
+      return row * h + depth * t;
+    };
+    const row0 = Math.floor(view.minY / h) - 2;
+    const row1 = Math.ceil(view.maxY / h) + 2;
+    const col0 = Math.floor(view.minX / w) - 1;
+    const col1 = Math.ceil(view.maxX / w) + 1;
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        const x0 = col * w;
+        const x1 = x0 + w * 0.5;
+        const x2 = x0 + w;
+        stampTile(fills, outline, tones, col, row, (path) => {
+          path.moveTo(x0, yAt(x0, row));
+          path.lineTo(x1, yAt(x1, row));
+          path.lineTo(x2, yAt(x2, row));
+          path.lineTo(x2, yAt(x2, row + 1));
+          path.lineTo(x1, yAt(x1, row + 1));
+          path.lineTo(x0, yAt(x0, row + 1));
+          path.closePath();
+        });
+      }
+    }
+  }
+
+  function addPlankTiles(fills, outline, tones, view) {
+    const u = 46;
+    const cell = u * 3;
+    const parts = [
+      [0, 0, 2, 2],
+      [2, 0, 1, 2],
+      [0, 2, 1, 1],
+      [1, 2, 2, 1],
+    ];
+    const col0 = Math.floor(view.minX / cell) - 1;
+    const col1 = Math.ceil(view.maxX / cell) + 1;
+    const row0 = Math.floor(view.minY / cell) - 1;
+    const row1 = Math.ceil(view.maxY / cell) + 1;
+    for (let row = row0; row <= row1; row++) {
+      for (let col = col0; col <= col1; col++) {
+        const ox = col * cell;
+        const oy = row * cell;
+        for (let p = 0; p < parts.length; p++) {
+          const part = parts[p];
+          stampTile(fills, outline, tones, col * 3 + part[0], row * 3 + part[1], (path) => {
+            traceRect(ox + part[0] * u, oy + part[1] * u, part[2] * u, part[3] * u, path);
+          });
+        }
+      }
+    }
   }
 
   function addSlashTiles(fills, outline, tones, view) {
@@ -4655,6 +4789,12 @@
     }
   }
 
+  function segmentTone(s, i) {
+    if (s.pattern === "bands" && i % 8 < 4) return s.c2;
+    if (s.pattern === "rings" && i % 6 === 0) return s.c2;
+    return s.c1;
+  }
+
   function drawSnake(s) {
     const pts = s.points;
     if (pts.length < 2 || !snakeVisible(s)) return;
@@ -4718,8 +4858,20 @@
       const rr = rad;
       ctx.beginPath();
       ctx.arc(p.x, p.y, rr, 0, Math.PI * 2);
-      ctx.fillStyle = s.c1;
+      ctx.fillStyle = segmentTone(s, i);
       ctx.fill();
+      if (s.pattern === "belly") {
+        const ahead = pts[Math.max(0, i - stride)];
+        let dx = ahead.x - p.x;
+        let dy = ahead.y - p.y;
+        const len = Math.hypot(dx, dy) || 1;
+        dx /= len;
+        dy /= len;
+        ctx.beginPath();
+        ctx.arc(p.x - dy * rr * 0.38, p.y + dx * rr * 0.38, rr * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = s.c2;
+        ctx.fill();
+      }
       ctx.beginPath();
       ctx.arc(p.x - rr * 0.22, p.y - rr * 0.28, rr * (0.22 + 0.08 * glow), 0, Math.PI * 2);
       ctx.fillStyle = "rgba(255,255,255," + (0.16 + 0.26 * glow).toFixed(3) + ")";
@@ -4737,6 +4889,12 @@
     ctx.arc(s.x, s.y, rad * 0.98, 0, Math.PI * 2);
     ctx.fillStyle = s.c1;
     ctx.fill();
+    if (s.pattern === "belly") {
+      ctx.beginPath();
+      ctx.arc(s.x + px * rad * 0.4, s.y + py * rad * 0.4, rad * 0.44, 0, Math.PI * 2);
+      ctx.fillStyle = s.c2;
+      ctx.fill();
+    }
     drawEye(s.x + hx * rad * 0.3 + px * eyeD, s.y + hy * rad * 0.3 + py * eyeD, eyeR, hx, hy);
     drawEye(s.x + hx * rad * 0.3 - px * eyeD, s.y + hy * rad * 0.3 - py * eyeD, eyeR, hx, hy);
 
@@ -5247,6 +5405,8 @@
       name: (nameInput.value.trim() || "You").slice(0, 16),
       player: true,
       skin: SKINS[skinIndex],
+      skin2: SKINS[skin2Index],
+      pattern: PATTERNS[patternIndex].id,
     });
     snakes.push(player);
     cam.x = player.x;
